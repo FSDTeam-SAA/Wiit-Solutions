@@ -1,7 +1,7 @@
 import Image from "next/image";
 import bannerImage from "../../../../public/image/banner1.jpeg";
 import partner from "@/../../public/image/partner.png";
-import partnerd from "@/../../public/image/buttonbg.jpeg";
+// import partnerd from "@/../../public/image/buttonbg.jpeg";
 
 export default function Home() {
   return (
