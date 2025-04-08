@@ -48,7 +48,10 @@ const AboutUs = () => {
                                 <p className="text-[13px] text-white font-normal mt-5">
                                     Our team of seasoned professionals brings a wealth of
                                     experience and knowledge to every project, ensuring that we
-                                    not only meet but exceed our clients&#39 expectations. We take
+
+                                    not only meet but exceed our clients expectations. We take
+
+
                                     pride in our commitment to excellence, integrity, and customer
                                     satisfaction.
                                 </p>
@@ -61,9 +64,11 @@ const AboutUs = () => {
                                 </h3>
                                 <p className="text-[13px] text-white font-normal mt-5">
                                     At WiT Solutions Group, we recognize the unique challenges
-                                    businesses face in today&#39s rapidly evolving digital landscape.
-                                    That&#39s why we offer personalized strategic guidance and
-                                    support tailored to each client&#39s specific needs and goals.
+
+                                    businesses face in todays rapidly evolving digital landscape.
+                                    Thats why we offer personalized strategic guidance and
+                                    support tailored to each clients specific needs and goals.
+
                                 </p>
                                 <p className="text-[13px] text-white font-normal mt-5">
                                     From initial consultation to post-implementation support and
