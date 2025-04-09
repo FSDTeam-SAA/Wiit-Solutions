@@ -12,7 +12,7 @@ export default function Home() {
         backgroundPosition: "",
         backgroundRepeat: "no-repeat",
       }}
-      className="h-[700px] bg-cover"
+      className="h-[700px] bg-cover bg-black "
     >
       <div className="container">
         <div className="pt-0  lg:pt-[50px] ml-[50px]">

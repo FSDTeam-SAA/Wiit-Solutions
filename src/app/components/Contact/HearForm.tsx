@@ -248,7 +248,7 @@ export default function HearForm() {
   };
 
   return (
-    <section className="text-white py-8 md:py-16 px-4 md:px-8 relative overflow-hidden">
+    <section className="text-white py-8 md:py-16 px-4 md:px-8 relative overflow-hidden bg-black">
       {/* Mobile Image - Responsive */}
       <div className="w-full h-[300px] sm:h-[400px] md:h-[500px] relative mb-16 md:mb-20">
         <Image 
@@ -256,11 +256,11 @@ export default function HearForm() {
           alt="image" 
           width={1000} 
           height={1000} 
-          className="w-full h-full object-cover"
+          className="md:w-full md:h-full object-cover"
         />
         
         {/* Heading - Responsive positioning */}
-        <div className="absolute left-0 lg:left-[-40%] right-0 bottom-[-60px] md:bottom-[-1px] text-center">
+        <div className="absolute left-0 lg:left-[-40%] right-0 bottom-[10px] md:bottom-[-1px] text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white px-4">
             WED LOVE TO HEAR FROM YOU
           </h1>
