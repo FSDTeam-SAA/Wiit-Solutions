@@ -3,7 +3,7 @@ import Image from "next/image"
 
 const ChooseUs = () => {
   return (
-    <section className="bg-black text-white py-8 md:py-12 px-4 md:px-8 relative overflow-hidden lg:mr-24">
+    <section className="bg-black text-white py-8 md:py-12 px-4 md:px-8 relative overflow-hidden lg:pr-24">
       <div className="max-w-7xl mx-auto">
         {/* Heading */}
         <div className="mb-8 md:mb-12 relative">
