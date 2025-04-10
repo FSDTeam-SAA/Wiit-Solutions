@@ -14,8 +14,8 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-black text-white w-full">
-      <div className=" container py-10">
+    <nav className="bg-black text-white w-full sticky top-0 left-0 z-50">
+      <div className=" container py-10 ">
         <div className="flex items-center justify-between">
           {/* Mobile menu button */}
           <div className="flex items-center sm:hidden">

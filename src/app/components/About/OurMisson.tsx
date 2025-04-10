@@ -25,7 +25,7 @@ export default function MissionVision() {
           <div className="w-full lg:w-1/2 space-y-8 text-right">
             {/* Mission Section */}
             <div className="space-y-4">
-              <div className="inline-block bg-[#8fe1e5] px-4 py-2 rounded-md">
+              <div className="inline-block bg-[#8fe1e5] px-4 py-2 ">
                 <h2 className="text-black text-2xl font-bold uppercase">
                   Our Mission
                 </h2>
@@ -41,7 +41,7 @@ export default function MissionVision() {
 
             {/* Vision Section */}
             <div className="space-y-4">
-              <div className="inline-block bg-[#8fe1e5] px-4 py-2 rounded-md">
+              <div className="inline-block bg-[#8fe1e5] px-4 py-2 ">
                 <h2 className="text-black text-2xl font-bold uppercase">
                   Our Vision
                 </h2>
