@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
+import { Roboto_Condensed } from "next/font/google";
 import "./globals.css";
 
 
-const montserrat = Montserrat({
+const RobotoCondensed = Roboto_Condensed({
   subsets: ["latin"],
 weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],})
 
@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="en">
 
       <body
-        className={`${montserrat.className} antialiased`}
+        className={`${RobotoCondensed.className} antialiased`}
       >
         {/* <Navbar/> */}
         {children}

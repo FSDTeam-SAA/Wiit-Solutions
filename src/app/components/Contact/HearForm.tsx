@@ -250,13 +250,13 @@ export default function HearForm() {
   return (
     <section className="text-white py-8 md:py-16 px-4 md:px-8 relative overflow-hidden bg-black">
       {/* Mobile Image - Responsive */}
-      <div className="w-full h-[300px] sm:h-[400px] md:h-[500px] relative mb-16 md:mb-20">
+      <div className="w-full h-[300px] sm:h-[400px] md:h-[600px] relative mb-16 md:mb-20">
         <Image 
-          src="/image/mobile.jpeg" 
+          src="/image/mobile2.jpeg" 
           alt="image" 
           width={1000} 
           height={1000} 
-          className="md:w-full md:h-full object-cover"
+          className="md:w-full md:h-full  object-center"
         />
         
         {/* Heading - Responsive positioning */}
