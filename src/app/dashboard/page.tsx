@@ -3,7 +3,7 @@
 export default function Dashboard() {
     return (
         <div className="p-6">
-          hello
+          Header can edit here
         </div>
     )
 }

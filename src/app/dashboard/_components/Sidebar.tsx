@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import {  Home,Settings, Users } from "lucide-react"
+import { Home, Users, Phone, HandPlatter } from "lucide-react"
 
 import {
     Sidebar,
@@ -14,6 +14,7 @@ import {
     SidebarRail,
     SidebarTrigger,
 } from "@/components/ui/sidebar"
+import Image from "next/image"
 
 const menuItems = [
   
@@ -23,14 +24,19 @@ const menuItems = [
         href: "/dashboard/home",
     },
     {
-        title: "Users",
+        title: "About Us",
         icon: Users,
-        href: "/users",
+        href: "/dashboard/about-us",
     },
     {
-        title: "Settings",
-        icon: Settings,
-        href: "/settings",
+        title: "Nationwide Services",
+        icon: HandPlatter,
+        href: "/dashboard/nationwide-services",
+    },
+    {
+        title: "Contact Us",
+        icon: Phone,
+        href: "/dashboard/contact-us",
     },
 ]
 
@@ -43,21 +49,17 @@ export function DashboardSidebar() {
                 <SidebarHeader>
                     <SidebarMenu>
                         <SidebarMenuItem>
-                            <SidebarMenuButton size="lg" asChild>
+                            <SidebarMenuButton size="xl" asChild>
                                 <Link href="/">
-                                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                                        <Home className="size-4" />
-                                    </div>
                                     <div className="flex flex-col gap-0.5 leading-none">
-                                        <span className="font-semibold">My Dashboard</span>
-                                        <span className="text-xs text-muted-foreground">v1.0.0</span>
+                                      <Image src="/image/logo.png" alt=' ' width={100} height={100} className='w-[80px] h-[80px] rounded-full  '/>
                                     </div>
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>
                 </SidebarHeader>
-                <SidebarContent>
+                <SidebarContent className="mt-10">
                     <SidebarMenu>
                         {menuItems.map((item) => (
                             <SidebarMenuItem key={item.href}>
