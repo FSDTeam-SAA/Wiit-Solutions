@@ -45,7 +45,7 @@ export default function HearForm() {
         {/* Heading - Responsive positioning */}
         <div className="absolute left-0 lg:left-[-40%] right-0 bottom-[10px] md:bottom-[-1px] text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white px-4">
-            WED LOVE TO HEAR FROM YOU
+            WE&apos;D LOVE TO HEAR FROM YOU
           </h1>
           <div className="w-[180px] h-[1.5px] bg-yellow-400 mx-auto mt-2"></div>
         </div>

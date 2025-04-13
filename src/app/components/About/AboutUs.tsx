@@ -39,7 +39,7 @@ const AboutUs = () => {
                   who we are
                 </h3>
                 <p className="text-[13px] text-white font-normal mt-5">
-                  WET Solutions Group is a network of seasoned providers of
+                  WiiT Solutions Group is a network of seasoned providers of
                   tailored ERP solutions, specializing in the implementation and
                   optimization of Enterprise Resource Planning (ERP) systems.
                   With a proven track record of delivering successful outcomes
@@ -63,7 +63,7 @@ const AboutUs = () => {
                   what we do
                 </h3>
                 <p className="text-[13px] text-white font-normal mt-5">
-                  At WiT Solutions Group, we recognize the unique challenges
+                  At WiiT Solutions Group, we recognize the unique challenges
                   businesses face in todays rapidly evolving digital landscape.
                   Thats why we offer personalized strategic guidance and support
                   tailored to each clients specific needs and goals.
