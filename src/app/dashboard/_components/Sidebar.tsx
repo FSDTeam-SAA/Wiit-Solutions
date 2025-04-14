@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Home, Users, Phone, HandPlatter } from "lucide-react"
+
 
 import {
     Sidebar,
@@ -19,24 +19,32 @@ import Image from "next/image"
 const menuItems = [
   
     {
-        title: "Home Page",
-        icon: Home,
+        title: "Banner",
         href: "/dashboard/home",
     },
     {
         title: "About Us",
-        icon: Users,
         href: "/dashboard/about-us",
     },
     {
+        title: "Mission & Vision",
+        href: "/dashboard/mission&vision",
+    },
+    {
         title: "Nationwide Services",
-        icon: HandPlatter,
         href: "/dashboard/nationwide-services",
     },
     {
+        title: "Our Comprehensive Services",
+        href: "/dashboard/our-comprehensive-services",
+    },
+    {
         title: "Contact Us",
-        icon: Phone,
         href: "/dashboard/contact-us",
+    },
+    {
+        title: " HEAR FROM YOU",
+         href: "/dashboard/hear-you",
     },
 ]
 
@@ -65,8 +73,7 @@ export function DashboardSidebar() {
                             <SidebarMenuItem key={item.href}>
                                 <SidebarMenuButton asChild isActive={pathname === item.href}>
                                     <Link href={item.href}>
-                                        <item.icon className="size-4" />
-                                        <span>{item.title}</span>
+                                        <span className="text-base font-medium capitalize">{item.title}</span>
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
