@@ -101,7 +101,7 @@ export default function EditableContentForm() {
 
     return (
         <div className="container mx-auto py-8 px-4">
-            <h1 className="text-2xl font-bold mb-6">Edit Content</h1>
+            <h1 className="text-2xl font-bold mb-6 text-center">Edit Content</h1>
 
             <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Title Section */}

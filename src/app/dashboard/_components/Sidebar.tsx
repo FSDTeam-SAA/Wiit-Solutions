@@ -17,7 +17,7 @@ import {
 import Image from "next/image"
 
 const menuItems = [
-  
+
     {
         title: "Banner",
         href: "/dashboard/home",
@@ -44,12 +44,15 @@ const menuItems = [
     },
     {
         title: " HEAR FROM YOU",
-         href: "/dashboard/hear-you",
+        href: "/dashboard/hear-you",
     },
 ]
 
 export function DashboardSidebar() {
     const pathname = usePathname()
+
+
+
 
     return (
         <>
@@ -60,7 +63,7 @@ export function DashboardSidebar() {
                             <SidebarMenuButton size="xl" asChild>
                                 <Link href="/">
                                     <div className="flex flex-col gap-0.5 leading-none">
-                                      <Image src="/image/logo.png" alt=' ' width={100} height={100} className='w-[80px] h-[80px] rounded-full  '/>
+                                        <Image src="/image/logo.png" alt=' ' width={100} height={100} className='w-[80px] h-[80px] rounded-full  ' />
                                     </div>
                                 </Link>
                             </SidebarMenuButton>
