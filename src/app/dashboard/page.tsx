@@ -1,6 +1,7 @@
 // /app/dashboard/page.tsx
 
 import ProtectedRoute from "../components/ProtectedRoute";
+import BannerEditor from "./_components/bannereditor";
 
 export default async function Dashboard() {
   // const session = await getServerSession(authOptions);
@@ -14,9 +15,8 @@ export default async function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <div className="p-4">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p>Welcome,</p>
+      <div >
+        <BannerEditor/>
       </div>
     </ProtectedRoute>
   );

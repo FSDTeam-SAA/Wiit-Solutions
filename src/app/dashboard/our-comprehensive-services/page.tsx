@@ -1,6 +1,7 @@
+// @typescript-eslint / no - explicit - any
 "use client"
-
-import { useState, useEffect, ChangeEvent, FormEvent } from "react"
+import type React from "react"
+import { useState, useEffect, type ChangeEvent, type FormEvent } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Loader2, X } from "lucide-react"
@@ -8,7 +9,7 @@ import dynamic from "next/dynamic"
 import Image from "next/image"
 import "react-quill/dist/quill.snow.css"
 
-// ✅ Properly type ReactQuill for use with JSX
+// Properly typed ReactQuill for dynamic import
 const ReactQuill = dynamic(() => import("react-quill"), {
     ssr: false,
 }) as unknown as React.ComponentType<{
@@ -17,9 +18,9 @@ const ReactQuill = dynamic(() => import("react-quill"), {
     theme?: string
     placeholder?: string
     className?: string
+    modules?: Record<string, unknown>
 }>
 
-// ✅ Type-safe FormData structure
 interface FormDataType {
     mainTitle: string
     subtitle: string
@@ -27,7 +28,7 @@ interface FormDataType {
 }
 
 export default function Page() {
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState(false)
     const [formData, setFormData] = useState<FormDataType>({
         mainTitle: "",
         subtitle: "",
@@ -95,17 +96,17 @@ export default function Page() {
     }
 
     const handleRemoveImage = (sectionName: string) => {
-        const imageName = `${sectionName}Image`
-        const previewName = `${sectionName}ImagePreview`
+        const imageKey = `${sectionName}Image`
+        const previewKey = `${sectionName}ImagePreview`
 
-        if (typeof formData[previewName] === "string") {
-            URL.revokeObjectURL(formData[previewName] as string)
+        if (typeof formData[previewKey] === "string") {
+            URL.revokeObjectURL(formData[previewKey] as string)
         }
 
         setFormData({
             ...formData,
-            [imageName]: null,
-            [previewName]: null,
+            [imageKey]: null,
+            [previewKey]: null,
         })
     }
 
@@ -114,7 +115,6 @@ export default function Page() {
         setIsLoading(true)
 
         const submitData = new FormData()
-
         Object.keys(formData).forEach((key) => {
             if (!key.includes("Preview") && formData[key] !== null) {
                 submitData.append(key, formData[key] as string | Blob)
@@ -149,13 +149,13 @@ export default function Page() {
 
                     {data[previewKey] ? (
                         <div className="relative mb-4">
-                            <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200">
+                            <div className="w-full rounded-lg overflow-hidden border border-gray-200 mb-2">
                                 <Image
-                                    src={data[previewKey] as string}
+                                    src={(data[previewKey] as string) || "/placeholder.svg"}
                                     alt={`Section ${number} preview`}
-                                    fill
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                    className="object-cover"
+                                    width={800}
+                                    height={150}
+                                    className="w-full h-[150px] object-contain bg-gray-100"
                                 />
                             </div>
                             <Button
@@ -191,11 +191,19 @@ export default function Page() {
                 <p className="text-sm text-gray-600 mb-2">Content</p>
                 <div className="mb-4">
                     <ReactQuill
-                        theme="snow"
                         value={(data[contentKey] as string) || ""}
                         onChange={(value) => handleQuillChange(value, contentKey)}
-                        placeholder="Write your content here..."
-                        className="min-h-[200px]"
+                        theme="snow"
+                        className="min-h-[150px] bg-white"
+                        modules={{
+                            toolbar: [
+                                [{ header: [1, 2, 3, false] }],
+                                ["bold", "italic", "underline", "strike"],
+                                [{ list: "ordered" }, { list: "bullet" }],
+                                ["link", "image"],
+                                ["clean"],
+                            ],
+                        }}
                     />
                 </div>
             </div>

@@ -32,6 +32,43 @@ interface PreviewState {
     icon3: string | null
 }
 
+interface FileUploadProps {
+    id: string
+    file: File | null
+    preview: string | null
+    onChange: (e: ChangeEvent<HTMLInputElement>) => void
+    label: string
+}
+
+const FileUploadWithPreview = ({ id, file, preview, onChange, label }: FileUploadProps) => (
+    <div className="space-y-2">
+        <Label htmlFor={id}>{label}</Label>
+        <Input
+            id={id}
+            name={id}
+            type="file"
+            accept="image/*"
+            onChange={onChange}
+        />
+        {file && (
+            <div className="mt-2">
+                <p className="text-sm text-muted-foreground">File: {file.name}</p>
+                {preview && (
+                    <div className="mt-2 border rounded-md p-2 w-24 h-24">
+                        <Image
+                            src={preview}
+                            width={100}
+                            height={100}
+                            alt={`${label} preview`}
+                            className="w-full h-full object-contain"
+                        />
+                    </div>
+                )}
+            </div>
+        )}
+    </div>
+)
+
 export default function ContactPage() {
     const [formData, setFormData] = useState<FormData>({
         title: "",
@@ -149,32 +186,13 @@ export default function ContactPage() {
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="icon1">Icon</Label>
-                                    <div className="space-y-2">
-                                        <Input
-                                            id="icon1"
-                                            name="icon1"
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => handleFileChange(e, "icon1")}
-                                        />
-                                        {files.icon1 && (
-                                            <div className="mt-2">
-                                                <p className="text-sm text-muted-foreground">File: {files.icon1.name}</p>
-                                                {previews.icon1 && (
-                                                    <div className="mt-2 border rounded-md p-2 w-24 h-24">
-                                                        <Image
-                                                            src={previews.icon1}
-                                                            alt="Icon preview"
-                                                            className="w-full h-full object-contain"
-                                                        />
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
+                                <FileUploadWithPreview
+                                    id="icon1"
+                                    file={files.icon1}
+                                    preview={previews.icon1}
+                                    onChange={(e) => handleFileChange(e, "icon1")}
+                                    label="Icon"
+                                />
 
                                 <div className="space-y-2">
                                     <Label htmlFor="addressDetails">Address Details</Label>
@@ -216,32 +234,13 @@ export default function ContactPage() {
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="icon2">Email Icon</Label>
-                                    <div className="space-y-2">
-                                        <Input
-                                            id="icon2"
-                                            name="icon2"
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => handleFileChange(e, "icon2")}
-                                        />
-                                        {files.icon2 && (
-                                            <div className="mt-2">
-                                                <p className="text-sm text-muted-foreground">File: {files.icon2.name}</p>
-                                                {previews.icon2 && (
-                                                    <div className="mt-2 border rounded-md p-2 w-24 h-24">
-                                                        <Image
-                                                            src={previews.icon2}
-                                                            alt="Icon preview"
-                                                            className="w-full h-full object-contain"
-                                                        />
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
+                                <FileUploadWithPreview
+                                    id="icon2"
+                                    file={files.icon2}
+                                    preview={previews.icon2}
+                                    onChange={(e) => handleFileChange(e, "icon2")}
+                                    label="Email Icon"
+                                />
 
                                 <div className="space-y-2">
                                     <Label htmlFor="phone">Phone</Label>
@@ -254,32 +253,13 @@ export default function ContactPage() {
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="icon3">Phone Icon</Label>
-                                    <div className="space-y-2">
-                                        <Input
-                                            id="icon3"
-                                            name="icon3"
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => handleFileChange(e, "icon3")}
-                                        />
-                                        {files.icon3 && (
-                                            <div className="mt-2">
-                                                <p className="text-sm text-muted-foreground">File: {files.icon3.name}</p>
-                                                {previews.icon3 && (
-                                                    <div className="mt-2 border rounded-md p-2 w-24 h-24">
-                                                        <Image
-                                                            src={previews.icon3}
-                                                            alt="Icon preview"
-                                                            className="w-full h-full object-contain"
-                                                        />
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
+                                <FileUploadWithPreview
+                                    id="icon3"
+                                    file={files.icon3}
+                                    preview={previews.icon3}
+                                    onChange={(e) => handleFileChange(e, "icon3")}
+                                    label="Phone Icon"
+                                />
 
                                 <div className="space-y-2">
                                     <Label htmlFor="buttonText">Button Text</Label>

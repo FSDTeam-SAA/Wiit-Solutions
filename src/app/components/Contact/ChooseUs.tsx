@@ -1,10 +1,9 @@
-import React from "react";
-import Image from "next/image"
+import Image from "next/image";
 
 const ChooseUs = () => {
   return (
     <section className="bg-black text-white py-8 md:py-12 px-4 md:px-8 relative overflow-hidden lg:pr-24">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         {/* Heading */}
         <div className="mb-8 md:mb-12 relative">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-1">
@@ -43,7 +42,7 @@ const ChooseUs = () => {
                   Holistic View
                 </h3>
                 <div className="w-full md:w-[40%]">
-                  <p className="text-gray-300 mb-4 md:mb-6 text-sm italic">
+                  <p className="text-gray-300 text-sm mb-4 md:mb-6 italic">
                     We approach challenges with creativity and a holistic
                     perspective, finding innovative solutions that address our
                     clients needs comprehensively.
@@ -52,10 +51,10 @@ const ChooseUs = () => {
                 </div>
               </div>
 
-              <div className="space-y-4 md:space-y-5">
+              <div className="space-y-4 md:space-y-2">
                 <div>
                   <h5 className="font-bold mb-1">Enhanced Engagement:</h5>
-                  <p className="text-gray-300 text-sm md:text-base lg:text-lg">
+                  <p className="text-gray-300 text-sm mb-4 md:mb-6 ">
                     A personalized message creates a welcoming atmosphere,
                     encouraging visitors to make a connection with us. This
                     approach fosters a sense of trust and builds stronger
@@ -65,7 +64,7 @@ const ChooseUs = () => {
 
                 <div>
                   <h5 className="font-bold mb-1">Clear Communication:</h5>
-                  <p className="text-gray-300 text-sm md:text-base lg:text-lg">
+                  <p className="text-gray-300 text-sm mb-4 md:mb-6 ">
                     By clearly stating our commitment to providing exceptional
                     ERP implementation consulting services, we ensure that
                     visitors understand the value we offer. This clarity helps
@@ -78,7 +77,7 @@ const ChooseUs = () => {
                   <h5 className="font-bold mb-1">
                     Professionalism and Expertise:
                   </h5>
-                  <p className="text-gray-300 text-sm md:text-base lg:text-lg">
+                  <p className="text-gray-300 text-sm mb-4 md:mb-6 ">
                     Highlighting our dedication to professionalism and success
                     creates confidence in our capabilities and expertise. This
                     reassures visitors that they are contacting a reliable and
@@ -90,7 +89,7 @@ const ChooseUs = () => {
                   <h5 className="font-bold mb-1">
                     Encouragement to Take Action:
                   </h5>
-                  <p className="text-gray-300 text-sm md:text-base lg:text-lg">
+                  <p className="text-gray-300 text-sm mb-4 md:mb-6 ">
                     A friendly and inviting message motivates visitors to take
                     the next step, whether its asking questions, seeking
                     assistance, or discussing their needs. This proactive
@@ -101,7 +100,7 @@ const ChooseUs = () => {
 
                 <div>
                   <h5 className="font-bold mb-1">Building Confidence:</h5>
-                  <p className="text-gray-300 text-sm md:text-base lg:text-lg">
+                  <p className="text-gray-300 text-sm mb-4 md:mb-6 ">
                     By expressing our eagerness to help, we instill confidence
                     in visitors that their inquiries are valued and will be
                     addressed promptly. This positive impression can lead to
@@ -220,19 +219,19 @@ const ChooseUs = () => {
           <Image
             src="/image/oldman.png"
             alt="image"
-            width={700}
-            height={500}
+            width={300}
+            height={300}
             className="w-full h-full object-contain"
           />
         </div>
       </div>
-      <div className="hidden lg:block absolute right-[8%] top-[42%] w-[100px] md:w-[150px] z-10">
+      <div className="hidden lg:block absolute right-[2%] top-[25%] w-[200px] md:w-[400px] z-10 ">
         <Image
           src="/image/question.png"
           alt="image"
-          width={150}
-          height={150}
-          className="w-full h-auto"
+          width={1000}
+          height={1000}
+          className="w-[400px] h-[400px] object-contain transform rotate-[-30deg]"
         />
       </div>
     </section>

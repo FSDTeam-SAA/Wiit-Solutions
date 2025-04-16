@@ -18,7 +18,7 @@ export default function LoginPage() {
         e.preventDefault();
 
         try {
-            const res = await fetch("http://127.0.0.1:8000/api/login", {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -48,7 +48,7 @@ export default function LoginPage() {
 
 
     return (
-        <section className="bg-black min-h-screen flex items-center justify-center">
+        <section className="bg-black min-h-screen absolute inset-0 flex items-center justify-center z-50">
             <div className="max-w-md w-full bg-white p-8 rounded shadow">
                 <h1 className="text-xl font-bold mb-4">Login</h1>
                 <form onSubmit={handleLogin} className="space-y-4">

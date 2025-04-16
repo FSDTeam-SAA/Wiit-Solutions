@@ -14,8 +14,8 @@ export default function Home() {
       <Homepage />
       <AboutUs />
       <MissionVision />
-      <OurComprehensiveServices />
       <Ourcorevalues />
+      <OurComprehensiveServices />
       <ChooseUs />
       <HearForm />
     </div>

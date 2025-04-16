@@ -1,9 +1,58 @@
+"use client";
 import Image from "next/image";
-import React from "react";
-import aboutimage from "@/../../public/image/about-img.jpeg";
-import aboutimage2 from "@/../../public/image/about-image-2.png";
+import React, { useEffect, useState } from "react";
+
+
+type AboutItem = {
+  main_title: string;
+  description?: string;
+  second_sub_title_content?: string;
+  name?: string;
+  sub_title_after_main_title?: string;
+  img1?: string;
+  img2?: string;
+  // 1st_paragraph_subtitle?: string;
+  // add more fields as needed
+};
+
+type HomeApiData = {
+  about: AboutItem[];
+};
 
 const AboutUs = () => {
+  const [data, setData] = useState<HomeApiData | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+     
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/frontend-data`,
+          {
+            method: "GET",
+            headers: {
+              // Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const result = await response.json();
+        // console.log("API Response:", result);  // Log the result
+        setData(result);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  const mappedData = data?.about?.map((item) => item);
+  console.log(mappedData?.[0]);
   return (
     <section className="py-10 px-4 md:px-8 bg-black">
       <div className="container mx-auto">
@@ -15,19 +64,33 @@ const AboutUs = () => {
               <div className="sm:w-[48%]">
                 <h1 className=" flex flex-col justify-center items-center text-[40px] md:text-[60px] lg:text-[80px] font-bold text-white leading-none">
                   <p>
-                    About <span className="text-[#A1EBFF]">Us</span>
+                    {mappedData?.[0]?.main_title
+                      ?.split(" ")
+                      .map((word, index) =>
+                        word === "Us" ? (
+                          <span key={index} className="text-[#A1EBFF]">
+                            {word}{" "}
+                          </span>
+                        ) : (
+                          word + " "
+                        )
+                      )}
                   </p>
                   <hr className="md:w-36 w-20 border-2 border-yellow-500" />
                 </h1>
               </div>
               <div className="sm:w-[48%] ">
-                <Image
-                  src={aboutimage}
-                  alt="About"
-                  width={200}
-                  height={80}
-                  className="w-full max-w-[200px] h-[80px] object-cover"
-                />
+                {mappedData?.[0]?.img1 === undefined ? (
+                  <div>no img</div>
+                ) : (
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Abouts/${mappedData?.[0]?.img1}`}
+                    alt="Banner Image"
+                    width={100}
+                    height={100}
+                    className="w-[150px]"
+                  />
+                )}
               </div>
             </div>
 
@@ -37,6 +100,7 @@ const AboutUs = () => {
               <div className="w-full md:w-[48%]">
                 <h3 className="text-sm tracking-[4px] font-semibold uppercase text-white bg-[#A4A4A4]/20 inline-block px-2 py-1">
                   who we are
+                  {/* {mappedData?.[0]?.1st_paragraph_subtitle} */}
                 </h3>
                 <p className="text-[13px] text-white font-normal mt-5">
                   WiiT Solutions Group is a network of seasoned providers of
@@ -86,20 +150,25 @@ const AboutUs = () => {
                   backgroundImage: `url('/image/buttonbg.jpeg')`,
                 }}
               >
-                Contact Us
+                {/* Contact Us */}
+                {mappedData?.[0]?.name}
               </button>
             </div>
           </div>
 
           {/* Right Image */}
           <div className="w-full lg:w-[35%] flex justify-center">
-            <Image
-              src={aboutimage2}
-              alt="About"
-              width={550}
-              height={600}
-              className="w-full max-w-[400px] md:max-w-[500px] lg:max-w-[550px] h-auto object-contain"
-            />
+            {mappedData?.[0]?.img2 === undefined ? (
+              <div>no img</div>
+            ) : (
+              <Image
+                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Abouts/${mappedData?.[0]?.img2}`}
+                alt="About"
+                width={550}
+                height={600}
+                className="w-full max-w-[400px] md:max-w-[500px] lg:max-w-[550px] h-auto object-contain"
+              />
+            )}
           </div>
         </div>
       </div>

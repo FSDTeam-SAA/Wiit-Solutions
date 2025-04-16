@@ -39,11 +39,11 @@ export default function HearForm() {
           alt="image" 
           width={1000} 
           height={1000} 
-          className="md:w-full md:h-full object-bottom"
+          className="md:w-full md:h-full object-cover"
         />
         
         {/* Heading - Responsive positioning */}
-        <div className="absolute left-0 lg:left-[-40%] right-0 bottom-[10px] md:bottom-[-1px] text-center">
+        <div className="absolute left-0 lg:left-[-50%] right-0 bottom-[10px] md:bottom-[-1px] text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white px-4">
             WE&apos;D LOVE TO HEAR FROM YOU
           </h1>
@@ -56,7 +56,7 @@ export default function HearForm() {
           {/* Left Column - Form */}
           <div className="w-full lg:w-1/2 mb-12 lg:mb-0">
             <p className="text-sm md:text-base mb-8 max-w-2xl">
-              At WIIT Solutions Group, we are dedicated to providing exceptional
+              At WiiT Solutions Group, we are dedicated to providing exceptional
               ERP implementation consulting services. Whether you have
               questions, need assistance, or want to discuss your specific
               needs, our team is here to help. Reach out to us today, and lets

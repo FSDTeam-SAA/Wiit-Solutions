@@ -17,7 +17,10 @@ import {
 import Image from "next/image"
 
 const menuItems = [
-
+    {
+        title: "Header",
+        href: "/dashboard",
+    },
     {
         title: "Banner",
         href: "/dashboard/home",
@@ -43,7 +46,7 @@ const menuItems = [
         href: "/dashboard/contact-us",
     },
     {
-        title: " HEAR FROM YOU",
+        title: " Hear from you",
         href: "/dashboard/hear-you",
     },
 ]
@@ -81,8 +84,18 @@ export function DashboardSidebar() {
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         ))}
+                        <button
+                            onClick={() => {
+                                localStorage.clear(); 
+                                window.location.href = "/"; 
+                            }}
+                            className="text-left w-full ml-2 py-1 mt-10 text-red-600 hover:bg-gray-100 rounded"
+                        >
+                            Log out
+                        </button>
                     </SidebarMenu>
                 </SidebarContent>
+                
                 <SidebarRail />
             </Sidebar>
             <div className="md:hidden fixed top-4 left-4 z-50">

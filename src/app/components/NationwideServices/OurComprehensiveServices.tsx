@@ -7,7 +7,7 @@ const OurComprehensiveServices = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold uppercase tracking-wider mb-2">
-            Our Comprehensive Services
+            Our  Services
           </h2>
           <div className="flex items-center justify-center gap-2">
             <div className="h-px bg-teal-400 w-12"></div>
@@ -37,7 +37,7 @@ const OurComprehensiveServices = () => {
                 Project Management
               </h3>
             </div>
-            <p className="text-sm mb-6">
+            <p className="text-sm h-[200px]">
               Our Project Management as a Service (PMaaS) offering provides
               scalable, cost-effective project management solutions for your
               business. Whether you require short-term assistance or a complete
@@ -93,7 +93,7 @@ const OurComprehensiveServices = () => {
                 Change Management
               </h3>
             </div>
-            <p className="text-sm mb-6">
+            <p className="text-sm h-[200px]">
               We understand the critical role of change management in the
               successful implementation of new systems and processes. Our change
               management services ensure a smooth transition and maximize the
@@ -180,7 +180,7 @@ const OurComprehensiveServices = () => {
                 Functional Consulting
               </h3>
             </div>
-            <p className="text-sm mb-6">
+            <p className="text-sm h-[200px]">
               Our ERP functional consulting services provide expert guidance and
               support to help organizations maximize the benefits of their
               Enterprise Resource Planning (ERP) systems. We focus on
@@ -233,14 +233,14 @@ const OurComprehensiveServices = () => {
                 Technical Consulting
               </h3>
             </div>
-            <p className="text-sm mb-6">
+            <p className="text-sm h-[200px]">
               Our technical consulting services for ERP implementation provide
               expert guidance and support throughout the entire process. We
               ensure that your ERP system is effectively integrated into your
               business operations, optimizing performance and delivering maximum
               value.
             </p>
-            <div className="mt-auto">
+            <div className="">
               <h4 className="text-teal-200 bg-gray-500 tracking-widest inline-block bg-opacity-60 font-bold mb-2 uppercase text-sm">
                 Key Benefits
               </h4>
@@ -304,7 +304,7 @@ const OurComprehensiveServices = () => {
                 Staff Augmentation
               </h3>
             </div>
-            <p className="text-sm mb-6">
+            <p className="text-sm h-[200px]">
               We provide top-tier staff augmentation services to fill businesses
               short-term talent shortages and specialized skill gaps. Our staff
               augmentation services seamlessly integrate specialized external
