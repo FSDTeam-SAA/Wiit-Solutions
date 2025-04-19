@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
@@ -10,19 +8,60 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
 import Image from "next/image"
+import { useSession } from "next-auth/react"
+import { toast } from "sonner"
 
 export default function MissionVisionEditor() {
+    const { data: session } = useSession()
+    const token = (session?.user as { token: string })?.token
+
     const [isLoading, setIsLoading] = useState(false)
     const [formData, setFormData] = useState({
         missionTitle: "Our Mission",
         mission: "Our mission is to empower businesses through innovative solutions.",
         visionTitle: "Our Vision",
         vision: "To become the leading provider of transformative technology services worldwide.",
-      
     })
 
     const [imageFile, setImageFile] = useState<File | null>(null)
     const [imagePreview, setImagePreview] = useState<string | null>(null)
+
+    // Fetch initial data when component mounts
+    useEffect(() => {
+        const fetchInitialData = async () => {
+          try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/possible`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+      
+            if (response.ok) {
+              const data = await response.json()
+              if (data) {
+                setFormData(prev => ({
+                  missionTitle: data.title1 || prev.missionTitle,
+                  mission: data.title1_content || prev.mission,
+                  visionTitle: data.title2 || prev.visionTitle,
+                  vision: data.title2_content || prev.vision,
+                }))
+      
+                if (data.img) {
+                  setImagePreview(`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Possibles/${data.img}`)
+                }
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching initial data:', error)
+            toast.error('Failed to load mission/vision data')
+          }
+        }
+      
+        if (token) {
+          fetchInitialData()
+        }
+      }, [token])
+      
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const { name, value } = e.target
@@ -51,24 +90,35 @@ export default function MissionVisionEditor() {
         setIsLoading(true)
 
         try {
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 2000))
+            const formDataToSend = new FormData()
+            formDataToSend.append('title1', formData.missionTitle)
+            formDataToSend.append('title1_content', formData.mission)
+            formDataToSend.append('title2', formData.visionTitle)
+            formDataToSend.append('title2_content', formData.vision)
 
-            // Log all data including image file
-            console.log("Form submitted:", {
-                ...formData,
-                image: imageFile
-                    ? {
-                        name: imageFile.name,
-                        type: imageFile.type,
-                        size: `${(imageFile.size / 1024).toFixed(2)} KB`,
-                    }
-                    : null,
+            if (imageFile) {
+                formDataToSend.append('img', imageFile)
+            }
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/possible`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formDataToSend
             })
 
-            // Here you would typically send the data to your backend
+            const result = await response.json()
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Failed to save data')
+            }
+
+            toast.success("Mission & Vision updated successfully!")
         } catch (error) {
-            console.error("Error submitting form:", error)
+            const err = error as Error
+            console.error("Error submitting form:", err)
+            toast.error(err.message || "Failed to update Mission & Vision")
         } finally {
             setIsLoading(false)
         }
@@ -86,22 +136,17 @@ export default function MissionVisionEditor() {
                         {/* Mission Section */}
                         <div className="space-y-2">
                             <div className="mb-2">
-                                <Label htmlFor="missionTitle" className="text-base font-medium mb-1 block">
-                                    Section Title
-                                </Label>
+                                <Label htmlFor="missionTitle">Mission Title</Label>
                                 <Input
                                     id="missionTitle"
                                     name="missionTitle"
                                     value={formData.missionTitle}
                                     onChange={handleChange}
-                                    placeholder="Enter section title..."
+                                    placeholder="Enter mission title..."
                                     disabled={isLoading}
-                                    className="font-medium"
                                 />
                             </div>
-                            <Label htmlFor="mission" className="text-base font-medium">
-                                Content
-                            </Label>
+                            <Label htmlFor="mission">Mission Content</Label>
                             <Textarea
                                 id="mission"
                                 name="mission"
@@ -116,22 +161,17 @@ export default function MissionVisionEditor() {
                         {/* Vision Section */}
                         <div className="space-y-2">
                             <div className="mb-2">
-                                <Label htmlFor="visionTitle" className="text-base font-medium mb-1 block">
-                                    Section Title
-                                </Label>
+                                <Label htmlFor="visionTitle">Vision Title</Label>
                                 <Input
                                     id="visionTitle"
                                     name="visionTitle"
                                     value={formData.visionTitle}
                                     onChange={handleChange}
-                                    placeholder="Enter section title..."
+                                    placeholder="Enter vision title..."
                                     disabled={isLoading}
-                                    className="font-medium"
                                 />
                             </div>
-                            <Label htmlFor="vision" className="text-base font-medium">
-                                Content
-                            </Label>
+                            <Label htmlFor="vision">Vision Content</Label>
                             <Textarea
                                 id="vision"
                                 name="vision"
@@ -143,12 +183,9 @@ export default function MissionVisionEditor() {
                             />
                         </div>
 
-                     
-
+                        {/* Image Upload */}
                         <div className="space-y-2">
-                            <Label htmlFor="image" className="text-base font-medium">
-                                Company Image
-                            </Label>
+                            <Label htmlFor="image">Company Image</Label>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                                 <div className="space-y-2">
                                     <input
@@ -158,25 +195,34 @@ export default function MissionVisionEditor() {
                                         onChange={handleImageChange}
                                         disabled={isLoading}
                                         className="block w-full text-sm text-slate-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-md file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-primary file:text-primary-foreground
-                      hover:file:bg-primary/90
-                      cursor-pointer disabled:opacity-50"
+                                        file:mr-4 file:py-2 file:px-4
+                                        file:rounded-md file:border-0
+                                        file:text-sm file:font-semibold
+                                        file:bg-primary file:text-primary-foreground
+                                        hover:file:bg-primary/90
+                                        cursor-pointer disabled:opacity-50"
                                     />
-                                    <p className="text-xs text-muted-foreground">Upload a company logo or relevant image</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {imageFile ? imageFile.name : imagePreview ? "Current image" : "No file selected"}
+                                    </p>
                                 </div>
                                 <div className="border rounded-md overflow-hidden h-[150px] flex items-center justify-center bg-muted/30">
                                     {imagePreview ? (
                                         <Image
-                                            src={imagePreview || "/placeholder.svg"}
+                                            src={
+                                                imagePreview.startsWith("http") || imagePreview.startsWith("/")
+                                                    ? imagePreview
+                                                    : `${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${imagePreview}`
+                                            }
                                             alt="Preview"
-                                            className="max-h-full max-w-full object-contain"
+                                            width={200}
+                                            height={150}
+                                            className="object-contain w-full h-full"
                                         />
                                     ) : (
                                         <span className="text-sm text-muted-foreground">Image preview</span>
                                     )}
+
                                 </div>
                             </div>
                         </div>

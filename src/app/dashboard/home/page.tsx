@@ -1,270 +1,287 @@
 "use client"
 
-import type React from "react"
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ImagePlus, Loader2, Edit, Check } from 'lucide-react'
+import { ImagePlus, Loader2 } from 'lucide-react'
 import Image from "next/image"
-import dynamic from "next/dynamic"
+import QuillEditor from "../_components/quill-editor"
+import { useSession } from "next-auth/react"
 
-// Dynamically import Quill with no SSR
-const ReactQuill = dynamic(() => import("react-quill"), {
-  ssr: false,
-  loading: () => (
-    <div className="border rounded-md p-3 min-h-[150px] flex items-center justify-center text-muted-foreground">
-      Loading editor...
-    </div>
-  ),
-})
+const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB in bytes
 
 export default function EditContentForm() {
-  const [title, setTitle] = useState("My Awesome Project")
-  const [subtitle, setSubtitle] = useState("A brief tagline goes here")
-  const [description, setDescription] = useState(
-    "<p>This is a detailed description of the project. You can write multiple paragraphs here.</p>",
-  )
+  const { data: session } = useSession()
+  const token = (session?.user as { token: string })?.token
+
+  const [formData, setFormData] = useState({
+    title: "My Awesome Project",
+    subtitle: "A brief tagline goes here",
+    description: "<p>This is a detailed description of the project. You can write multiple paragraphs here.</p>",
+    buttonText: "Save Changes",
+    buttonLink: "#",
+  })
+
   const [logo, setLogo] = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
+  const [backgroundImage, setBackgroundImage] = useState<File | null>(null)
+  const [backgroundPreview, setBackgroundPreview] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [buttonText, setButtonText] = useState("Save Changes")
-  const [isEditingButton, setIsEditingButton] = useState(false)
-  const buttonEditRef = useRef<HTMLSpanElement>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  // Flag to track if Quill is loaded
-  const [quillLoaded, setQuillLoaded] = useState(false)
-
-  // Handle direct button text editing
-  const handleButtonTextEdit = () => {
-    if (buttonEditRef.current) {
-      const text = buttonEditRef.current.innerText.trim();
-      if (text) {
-        setButtonText(text);
-      } else {
-        // Reset to default if empty
-        buttonEditRef.current.innerText = buttonText;
-      }
-    }
+  const handleInputChange = (key: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [key]: value }))
+    setError(null)
   }
 
-  // Focus the editable span when editing mode is enabled
-  useEffect(() => {
-    if (isEditingButton && buttonEditRef.current) {
-      buttonEditRef.current.focus();
-    }
-  }, [isEditingButton]);
-
-  // Handle Quill loading
-  useEffect(() => {
-    // This will run only on the client side
-    setQuillLoaded(true);
-  }, []);
+  const handleEditorChange = (value: string) => {
+    handleInputChange("description", value)
+  }
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      setLogo(file)
-
-      // Create preview URL
-      const reader = new FileReader()
-      reader.onload = () => {
-        setLogoPreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    if (file.size > MAX_FILE_SIZE) {
+      setError('Logo image must be smaller than 2MB')
+      return
     }
+    
+    setLogo(file)
+    setError(null)
+    const reader = new FileReader()
+    reader.onload = () => setLogoPreview(reader.result as string)
+    reader.readAsDataURL(file)
+  }
+
+  const handleBackgroundChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    if (file.size > MAX_FILE_SIZE) {
+      setError('Background image must be smaller than 2MB')
+      return
+    }
+    
+    setBackgroundImage(file)
+    setError(null)
+    const reader = new FileReader()
+    reader.onload = () => setBackgroundPreview(reader.result as string)
+    reader.readAsDataURL(file)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    const formData = new FormData();
-    formData.append('main_title', title);
-    formData.append('sub_title_after_main_title', subtitle);
-    formData.append('second_sub_title_content', description);
-    if (logo) {
-      formData.append('img', logo); // File object append করা হচ্ছে
-    }
-    formData.append('name', buttonText);
+    e.preventDefault()
+    setIsSubmitting(true)
+    setError(null)
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/home`, {
+      const formDataToSend = new FormData()
+      formDataToSend.append('main_title', formData.title)
+      formDataToSend.append('sub_title_after_main_title', formData.subtitle)
+      formDataToSend.append('second_sub_title_content', formData.description)
+      formDataToSend.append('button_text', formData.buttonText)
+      formDataToSend.append('button_link', formData.buttonLink)
+
+      if (logo) {
+        formDataToSend.append('logo', logo)
+      }
+      if (backgroundImage) {
+        formDataToSend.append('background_image', backgroundImage)
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/banner`, {
         method: "POST",
         headers: {
-          // "Authorization": `Bearer ${}`,
-          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
         },
-        body: formData,
-      });
+        body: formDataToSend,
+      })
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Success:', result);
-      } else {
-        const errorResult = await response.json();
-        console.error('Error submitting data:', errorResult);
+      const result = await response.json()
+      
+      if (!response.ok) {
+        setError(result.message || 'Failed to save banner')
+        console.error('Error:', result)
+        return
       }
-    } catch (error) {
-      console.error('Fetch error:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
-  const toggleButtonEdit = () => {
-    setIsEditingButton(!isEditingButton)
-    if (!isEditingButton && buttonEditRef.current) {
-      // When enabling edit mode, set the current text
-      buttonEditRef.current.innerText = buttonText;
+      console.log('Success:', result)
+    } catch (error) {
+      setError('An unexpected error occurred')
+      console.error('Fetch error:', error)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/banner`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data) {
+            setFormData({
+              title: data.main_title || formData.title,
+              subtitle: data.sub_title_after_main_title || formData.subtitle,
+              description: data.second_sub_title_content || formData.description,
+              buttonText: data.button_text || formData.buttonText,
+              buttonLink: data.button_link || formData.buttonLink,
+            })
+
+            if (data.logo_url) {
+              setLogoPreview(data.logo_url)
+            }
+            if (data.background_image_url) {
+              setBackgroundPreview(data.background_image_url)
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching initial data:', error)
+      }
+    }
+
+    if (token) {
+      fetchInitialData()
+    }
+  }, [token, formData.title, formData.subtitle, formData.description, formData.buttonText, formData.buttonLink])
+
   return (
-    <Card className="w-full h-screen mx-auto shadow-md">
+    <Card className="py-10 shadow-md ">
       <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
         <CardTitle className="text-xl sm:text-2xl text-center">Edit Banner</CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
-          <div className="space-y-1 sm:space-y-2">
-            <Label htmlFor="title" className="text-sm sm:text-base">
-              Main Title
-            </Label>
+        <CardContent className="space-y-6 px-4 sm:px-6">
+          {error && (
+            <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <Label htmlFor="title">Main Title</Label>
             <Input
               id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={formData.title}
+              onChange={(e) => handleInputChange("title", e.target.value)}
               placeholder="Enter title"
               required
-              className="text-sm sm:text-base"
             />
           </div>
 
-          <div className="space-y-1 sm:space-y-2">
-            <Label htmlFor="subtitle" className="text-sm sm:text-base">
-              Sub Title
-            </Label>
+          <div>
+            <Label htmlFor="subtitle">Sub Title</Label>
             <Input
               id="subtitle"
-              value={subtitle}
-              onChange={(e) => setSubtitle(e.target.value)}
+              value={formData.subtitle}
+              onChange={(e) => handleInputChange("subtitle", e.target.value)}
               placeholder="Enter subtitle"
-              className="text-sm sm:text-base"
             />
           </div>
 
-          <div className="space-y-1 sm:space-y-2">
-            <Label htmlFor="description" className="text-sm sm:text-base">
-              Second Sub Title
-            </Label>
-            {/* Only render Quill when it's loaded on the client side */}
-            {quillLoaded && (
-              <div className="quill-wrapper">
-                <ReactQuill
-                  value={description}
-                  onChange={setDescription}
-                  theme="snow"
-                  modules={{
-                    toolbar: [
-                      [{ header: [1, 2, 3, false] }],
-                      ["bold", "italic", "underline", "strike"],
-                      [{ list: "ordered" }, { list: "bullet" }],
-                      ["link", "image"],
-                      ["clean"],
-                    ],
-                  }}
-                  className="min-h-[150px]"
-                />
-              </div>
-            )}
+          <div>
+            <Label htmlFor="description">Second Sub Title</Label>
+            <QuillEditor
+              id="description"
+              value={formData.description}
+              onChange={handleEditorChange}
+            />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="logo" className="text-sm sm:text-base">
-              Logo
-            </Label>
-            <div className="flex flex-col items-center gap-3 sm:gap-4 sm:flex-row">
-              <div className="flex h-24 w-24 sm:h-32 sm:w-32 items-center justify-center rounded-md border border-dashed">
+            <Label htmlFor="logo">Logo</Label>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="h-32 w-32 flex items-center justify-center border border-dashed rounded-md">
                 {logoPreview ? (
                   <Image
-                    src={logoPreview || "/placeholder.svg"}
+                    src={logoPreview}
                     alt="Logo preview"
                     width={128}
                     height={128}
                     className="h-full w-full object-contain p-2"
+                    unoptimized={logoPreview.startsWith('blob:')}
                   />
                 ) : (
-                  <ImagePlus className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground" />
+                  <ImagePlus className="h-10 w-10 text-muted-foreground" />
                 )}
               </div>
-              <div className="flex-1 w-full">
-                <Input
-                  id="logo"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoChange}
-                  className="cursor-pointer w-full"
-                />
-              </div>
+              <Input
+                id="logo"
+                type="file"
+                accept="image/*"
+                onChange={handleLogoChange}
+              />
             </div>
           </div>
 
-          {/* Button Text Editor - Direct Editing */}
-          <div className="space-y-1 sm:space-y-2">
-            <div className="flex justify-between items-center">
-              <Label htmlFor="buttonText" className="text-sm sm:text-base">
-                Button Text
-              </Label>
-              <Button type="button" variant="outline" size="sm" onClick={toggleButtonEdit} className="h-8 px-2 text-xs">
-                {isEditingButton ? (
-                  <>
-                    <Check className="h-3.5 w-3.5 mr-1" />
-                    Done
-                  </>
+          <div className="space-y-2">
+            <Label htmlFor="background">Background Image</Label>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="h-32 w-32 flex items-center justify-center border border-dashed rounded-md">
+                {backgroundPreview ? (
+                  <Image
+                    src={backgroundPreview}
+                    alt="Background preview"
+                    width={128}
+                    height={128}
+                    className="h-full w-full object-contain p-2"
+                    unoptimized={backgroundPreview.startsWith('blob:')}
+                  />
                 ) : (
-                  <>
-                    <Edit className="h-3.5 w-3.5 mr-1" />
-                    Edit
-                  </>
+                  <ImagePlus className="h-10 w-10 text-muted-foreground" />
                 )}
-              </Button>
+              </div>
+              <Input
+                id="background"
+                type="file"
+                accept="image/*"
+                onChange={handleBackgroundChange}
+              />
             </div>
-            <div className={`border rounded-md p-3 text-sm sm:text-base ${isEditingButton ? 'bg-muted/30 ring-2 ring-ring' : ''}`}>
-              {isEditingButton ? (
-                <span
-                  ref={buttonEditRef}
-                  contentEditable
-                  onBlur={handleButtonTextEdit}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleButtonTextEdit();
-                      toggleButtonEdit();
-                    }
-                  }}
-                  className="focus:outline-none block w-full"
-                  suppressContentEditableWarning={true}
-                >
-                  {buttonText}
-                </span>
-              ) : (
-                buttonText
-              )}
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="buttonText">Button Text</Label>
+              <Input
+                id="buttonText"
+                value={formData.buttonText}
+                onChange={(e) => handleInputChange("buttonText", e.target.value)}
+                placeholder="Enter button text"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="buttonLink">Button Link</Label>
+              <Input
+                id="buttonLink"
+                value={formData.buttonLink}
+                onChange={(e) => handleInputChange("buttonLink", e.target.value)}
+                placeholder="Enter button link"
+              />
             </div>
           </div>
         </CardContent>
 
-        <CardFooter className="px-4 sm:px-6 pb-4 sm:pb-6">
-          <Button type="submit" className="w-[200px] text-sm sm:text-base py-2 sm:py-2.5" disabled={isSubmitting}>
+        <CardFooter className="px-4 sm:px-6 pb-6">
+          <Button type="submit" className="w-[200px]" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-                Saving changes...
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Saving...
               </>
             ) : (
-              buttonText
+              formData.buttonText
             )}
           </Button>
         </CardFooter>

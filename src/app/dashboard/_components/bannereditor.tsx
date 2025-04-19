@@ -1,69 +1,137 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Upload, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-
+import { useSession } from "next-auth/react"
 
 export default function BannerEditor() {
-    // State for navigation items
     const [navItems, setNavItems] = useState([
         { id: 1, label: "Home", url: "/" },
         { id: 2, label: "About Us", url: "/about" },
-        { id: 3, label: "Nationwide Services", url: "/services" },
-        { id: 4, label: "Contact Us", url: "/contact" },
+        { id: 3, label: "Services", url: "/services" },
     ])
-
-    // State for logo
     const [logo, setLogo] = useState<string | null>(null)
+    const [logoFile, setLogoFile] = useState<File | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const session = useSession()
+    const token = (session?.data?.user as { token: string })?.token
 
-
-    // Handle nav item change
     const handleNavItemChange = (id: number, field: "label" | "url", value: string) => {
-        setNavItems((prevItems) => prevItems.map((item) => (item.id === id ? { ...item, [field]: value } : item)))
+        setNavItems(prevItems => prevItems.map(item => (item.id === id ? { ...item, [field]: value } : item)))
     }
 
-    // Handle logo upload
     const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (file) {
-            const reader = new FileReader()
-            reader.onload = (event) => {
-                setLogo(event.target?.result as string)
-            }
-            reader.readAsDataURL(file)
+            setLogoFile(file)
+            // Create a preview URL for the image
+            const previewUrl = URL.createObjectURL(file)
+            setLogo(previewUrl)
         }
     }
 
-    // Handle form submission
-    const handleSubmit = (e: React.FormEvent) => {
+    useEffect(() => {
+        const fetchMenuData = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/menu`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+
+                if (!response.ok) throw new Error("Failed to fetch menu data")
+
+                const data = await response.json()
+
+                if (data && data.data) {
+                    const menu = data.data
+                    const items = [
+                        { id: 1, label: menu.name1 || "Home", url: menu.link1 || "/" },
+                        { id: 2, label: menu.name2 || "About", url: menu.link2 || "/about" },
+                        { id: 3, label: menu.name3 || "Services", url: menu.link3 || "/services" },
+                    ]
+
+                    setNavItems(items)
+
+                    // Set logo if available (check if it's not null and not empty string)
+                    if (menu.logo) {
+                        // Construct full URL if it's just a filename
+                        const logoUrl = menu.logo.startsWith('http') 
+                            ? menu.logo 
+                            : `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${menu.logo}`
+                        setLogo(logoUrl)
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching menu data:", err)
+            }
+        }
+
+        if (token) {
+            fetchMenuData()
+        }
+    }, [token])
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsSubmitting(true)
 
-        // Simulate API call
-        setTimeout(() => {
-            console.log("Form Data:", {
-                navItems,
-                logo,
+        const formData = new FormData()
+
+        // Append nav items (up to 3)
+        navItems.slice(0, 3).forEach((item, index) => {
+            formData.append(`name${index + 1}`, item.label)
+            formData.append(`link${index + 1}`, item.url)
+        })
+
+        // Append logo file if a new one was uploaded
+        if (logoFile) {
+            formData.append("logo", logoFile)
+        } else if (logo) {
+            // If no new file but logo exists, send the existing logo path
+            // Extract just the filename if it's a full URL
+            const logoPath = logo.includes('/storage/') 
+                ? logo.split('/storage/')[1] 
+                : logo
+            formData.append("logo", logoPath)
+        }
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/menu`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData,
             })
+
+            const result = await response.json()
+            if (response.ok) {
+                console.log("Success:", result)
+                // Update the logo URL if a new one was uploaded
+                if (result.data?.logo) {
+                    const newLogoUrl = result.data.logo.startsWith('http') 
+                        ? result.data.logo 
+                        : `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${result.data.logo}`
+                    setLogo(newLogoUrl)
+                }
+            } else {
+                console.error("Error:", result)
+            }
+        } catch (error) {
+            console.error("Submit failed:", error)
+        } finally {
             setIsSubmitting(false)
-        }, 1500)
-
-
-
-
-
+        }
     }
 
     return (
-
         <div className="container mx-auto px-4 py-2">
             <Card className="w-full">
                 <CardHeader className="text text-center">
@@ -121,11 +189,12 @@ export default function BannerEditor() {
                                         <div className="border rounded-md p-4 flex items-center justify-center h-32 bg-muted">
                                             {logo ? (
                                                 <Image
-                                                    src={logo || "/placeholder.svg"}
+                                                    src={logo}
                                                     alt="Logo Preview"
                                                     width={150}
                                                     height={80}
                                                     className="max-h-24 object-contain"
+                                                    unoptimized={logo.startsWith('blob:')} // For blob URLs
                                                 />
                                             ) : (
                                                 <div className="flex flex-col items-center text-muted-foreground">
@@ -155,6 +224,5 @@ export default function BannerEditor() {
                 </CardContent>
             </Card>
         </div>
-
     )
 }
