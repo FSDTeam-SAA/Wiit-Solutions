@@ -1,6 +1,6 @@
+import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { JWT } from "next-auth/jwt";
-import { NextAuthOptions } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -19,7 +19,7 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Please enter email and password");
         }
-
+      
         try {
           const res = await fetch(`${process.env.BACKEND_URL}/api/login`, {
             method: "POST",
@@ -29,14 +29,15 @@ export const authOptions: NextAuthOptions = {
               password: credentials.password,
             }),
           });
-
+      
           const data = await res.json();
           console.log("Auth API Response:", data);
-
-          if (!res.ok || !data?.user || !data?.user?.id || !data?.token) {
-            throw new Error(data.message || "Invalid credentials");
+      
+          // Check if token exists (login successful)
+          if (!res.ok || !data?.token) {
+            throw new Error(data?.message || "Invalid email or password");
           }
-
+      
           return {
             id: data?.id,
             name: data?.name,
@@ -45,9 +46,10 @@ export const authOptions: NextAuthOptions = {
           };
         } catch (error) {
           console.error("Authentication error:", error);
-          throw new Error("Authentication failed. Please try again.");
+          throw new Error("Invalid email or password");
         }
       },
+      
     }),
   ],
   callbacks: {
