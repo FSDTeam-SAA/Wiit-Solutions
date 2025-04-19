@@ -1,6 +1,6 @@
 // /app/dashboard/page.tsx
 
-import ProtectedRoute from "../components/ProtectedRoute";
+// import ProtectedRoute from "../components/ProtectedRoute";
 import BannerEditor from "./_components/bannereditor";
 
 export default async function Dashboard() {
@@ -14,11 +14,11 @@ export default async function Dashboard() {
   // }
 
   return (
-    <ProtectedRoute>
-      <div >
-        <BannerEditor/>
-      </div>
-    </ProtectedRoute>
+    // <ProtectedRoute>
+    <div >
+      <BannerEditor />
+    </div>
+    // </ProtectedRoute>
   );
 }
 

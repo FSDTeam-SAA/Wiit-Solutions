@@ -77,23 +77,41 @@ export default function EditContentForm() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    const formData = new FormData();
+    formData.append('main_title', title);
+    formData.append('sub_title_after_main_title', subtitle);
+    formData.append('second_sub_title_content', description);
+    if (logo) {
+      formData.append('img', logo); // File object append করা হচ্ছে
+    }
+    formData.append('name', buttonText);
 
-    // Log all data to console
-    console.log({
-      title,
-      subtitle,
-      description, // This contains HTML from the Quill editor
-      logo,
-      buttonText, // Also log the custom button text
-    })
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/home`, {
+        method: "POST",
+        headers: {
+          // "Authorization": `Bearer ${}`,
+          "Content-Type": "multipart/form-data",
+        },
+        body: formData,
+      });
 
-    setIsSubmitting(false)
-  }
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Success:', result);
+      } else {
+        const errorResult = await response.json();
+        console.error('Error submitting data:', errorResult);
+      }
+    } catch (error) {
+      console.error('Fetch error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const toggleButtonEdit = () => {
     setIsEditingButton(!isEditingButton)
@@ -112,7 +130,7 @@ export default function EditContentForm() {
         <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
           <div className="space-y-1 sm:space-y-2">
             <Label htmlFor="title" className="text-sm sm:text-base">
-              Title
+              Main Title
             </Label>
             <Input
               id="title"
@@ -126,7 +144,7 @@ export default function EditContentForm() {
 
           <div className="space-y-1 sm:space-y-2">
             <Label htmlFor="subtitle" className="text-sm sm:text-base">
-              Subtitle
+              Sub Title
             </Label>
             <Input
               id="subtitle"
@@ -139,7 +157,7 @@ export default function EditContentForm() {
 
           <div className="space-y-1 sm:space-y-2">
             <Label htmlFor="description" className="text-sm sm:text-base">
-              Description
+              Second Sub Title
             </Label>
             {/* Only render Quill when it's loaded on the client side */}
             {quillLoaded && (

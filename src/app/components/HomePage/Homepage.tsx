@@ -25,7 +25,7 @@ export default function Home() {
     const fetchData = async () => {
     
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/frontend-data`, {
+        const response = await fetch(`http://127.0.0.1:8000/api/frontend-data`, {  
           method: "GET",
           headers: {
             // Authorization: `Bearer ${token}`,

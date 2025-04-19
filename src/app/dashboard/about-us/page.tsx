@@ -10,6 +10,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
 import { Loader2 } from "lucide-react"
+import axios from "axios"
+import { toast } from "sonner"
+import { useSession } from "next-auth/react"
 
 export default function EditableContent() {
   const [content, setContent] = useState({
@@ -66,16 +69,50 @@ export default function EditableContent() {
     }
   }
 
-  const handleSaveChanges = () => {
+  const session = useSession();
+  const token = (session?.data?.user as { token: string })?.token
+
+  const handleSaveChanges = async () => {
     setIsLoading(true)
     console.log("Saving data...", content)
 
-    // Simulate API call with setTimeout
-    setTimeout(() => {
-      console.log("All Content Data Saved:", content)
+    try {
+      const formData = new FormData()
+      formData.append("title", content.title)
+      formData.append("subtitle1", content.subtitle1)
+      formData.append("subtitle2", content.subtitle2)
+      formData.append("description1", content.description1)
+      formData.append("description2", content.description2)
+
+      // If your API accepts file uploads:
+      const fileInput1 = document.getElementById("image1") as HTMLInputElement
+      const fileInput2 = document.getElementById("image2") as HTMLInputElement
+
+      if (fileInput1?.files?.[0]) {
+        formData.append("image1", fileInput1.files[0])
+      }
+
+      if (fileInput2?.files?.[0]) {
+        formData.append("image2", fileInput2.files[0])
+      }
+
+      const response = await axios.post("https://amit.scaleupdevagency.com/api/aboutus", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      console.log("All Content Data Saved:", response.data)
+      toast.success("Content saved successfully!")
+    } catch  {
+      console.error("Error saving content:")
+      toast.error("Failed to save content.")
+    } finally {
       setIsLoading(false)
-    }, 2000) // 2 second delay to simulate API call
+    }
   }
+
 
   return (
     <div className="container mx-auto px-4 py-8">

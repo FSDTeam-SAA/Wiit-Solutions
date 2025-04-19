@@ -23,7 +23,7 @@ export default function BannerEditor() {
     // State for logo
     const [logo, setLogo] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
- 
+
 
     // Handle nav item change
     const handleNavItemChange = (id: number, field: "label" | "url", value: string) => {
@@ -55,6 +55,11 @@ export default function BannerEditor() {
             })
             setIsSubmitting(false)
         }, 1500)
+
+
+
+
+
     }
 
     return (

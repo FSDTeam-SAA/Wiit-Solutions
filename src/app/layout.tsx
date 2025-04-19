@@ -2,8 +2,9 @@
 import type { Metadata } from "next";
 import { Roboto_Condensed } from "next/font/google";
 import "./globals.css";
-import { Providerswrapper } from "./components/SessionProvider/SessionProvider";
- // adjust path if needed
+import { Toaster } from 'sonner';
+import AuthProvider from "@/components/Provider/SessionProvider";
+// adjust path if needed
 
 const RobotoCondensed = Roboto_Condensed({
   subsets: ["latin"],
@@ -23,9 +24,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${RobotoCondensed.className} antialiased`}>
-        <Providerswrapper>
+        <AuthProvider>
           {children}
-        </Providerswrapper>
+          <Toaster />
+        </AuthProvider>
+
       </body>
     </html>
   );

@@ -15,6 +15,7 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar"
 import Image from "next/image"
+import { signOut } from "next-auth/react"
 
 const menuItems = [
     {
@@ -85,10 +86,7 @@ export function DashboardSidebar() {
                             </SidebarMenuItem>
                         ))}
                         <button
-                            onClick={() => {
-                                localStorage.clear(); 
-                                window.location.href = "/"; 
-                            }}
+                            onClick={() => signOut({ callbackUrl: "/" })}
                             className="text-left w-full ml-2 py-1 mt-10 text-red-600 hover:bg-gray-100 rounded"
                         >
                             Log out
