@@ -31,6 +31,7 @@ interface FormErrors {
 export default function ComprehensiveServiceForm() {
     const { data: session } = useSession()
     const token = (session?.user as { token: string })?.token
+    console.log(token)
 
     const [content, setContent] = useState<FormData>({
         title: '',

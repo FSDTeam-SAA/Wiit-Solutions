@@ -43,11 +43,11 @@ const menuItems = [
         href: "/dashboard/our-comprehensive-services",
     },
     {
-        title: "Contact Us",
+        title: "Why Choose us",
         href: "/dashboard/contact-us",
     },
     {
-        title: " Hear from you",
+        title: "Footer",
         href: "/dashboard/hear-you",
     },
 ]

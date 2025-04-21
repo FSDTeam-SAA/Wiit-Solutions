@@ -1,51 +1,28 @@
-
-
 "use client";
 
 import type React from "react";
-import { useState } from "react";
 import Image from "next/image";
-import mobaile from "@/../../public/image/mobile3.jpg"
+import { ContactSection } from "@/types/home";
+import ContactForm from "../contact-form/contactForm";
 
-export default function HearForm() {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    companyName: "",
-    email: "",
-    phone: "",
-    message: "",
-  });
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Add your form submission logic here
-  };
+export default function HearForm({ contactData }: { contactData: ContactSection }) {
 
   return (
-    <section className="text-white py-8 md:py-16 px-4 md:px-8 relative overflow-hidden bg-black">
+    <section className="text-white pt-8 pb-1 md:py-16 lg:pt-16 lg:pb-4 px-4 md:px-8 relative overflow-hidden bg-black">
       {/* Mobile Image - Responsive */}
       <div className="w-full h-[300px] sm:h-[400px] md:h-[800px] relative mb-16 md:mb-20">
-        <Image 
-          src={mobaile}
-          alt="image" 
-          width={1000} 
-          height={1000} 
+        <Image
+          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Contacts/${contactData?.breadcrumb}`}
+          alt="image"
+          width={1000}
+          height={1000}
           className="md:w-full md:h-full object-cover"
         />
-        
+
         {/* Heading - Responsive positioning */}
         <div className="absolute left-0 lg:left-[-50%] right-0 bottom-[10px] md:bottom-[-1px] text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white px-4">
-            WE&apos;D LOVE TO HEAR FROM YOU
+            {contactData?.main_title}
           </h1>
           <div className="w-[180px] h-[1.5px] bg-yellow-400 mx-auto mt-2"></div>
         </div>
@@ -56,92 +33,10 @@ export default function HearForm() {
           {/* Left Column - Form */}
           <div className="w-full lg:w-1/2 mb-12 lg:mb-0">
             <p className="text-sm md:text-base mb-8 max-w-2xl">
-              At WiiT Solutions Group, we are dedicated to providing exceptional
-              ERP implementation consulting services. Whether you have
-              questions, need assistance, or want to discuss your specific
-              needs, our team is here to help. Reach out to us today, and lets
-              explore how we can support your business goals and drive success
-              together.
+              {contactData?.sub_title}
             </p>
 
-            <form
-              onSubmit={handleSubmit}
-              className="grid grid-cols-1 md:grid-cols-2 gap-4"
-            >
-              <div>
-                <input
-                  type="text"
-                  name="firstName"
-                  placeholder="*First Name"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  required
-                  className="italic w-full p-3 bg-white text-black border border-gray-300 rounded-sm"
-                />
-              </div>
-              <div>
-                <input
-                  type="text"
-                  name="phone"
-                  placeholder="*Phone Number"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  className="italic w-full p-3 bg-white text-black border border-gray-300 rounded-sm"
-                />
-              </div>
-              <div>
-                <input
-                  type="text"
-                  name="lastName"
-                  placeholder="*Last Name"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  required
-                  className="italic w-full p-3 bg-white text-black border border-gray-300 rounded-sm"
-                />
-              </div>
-              <div className="md:row-span-2">
-                <textarea
-                  name="message"
-                  placeholder="*Comments/Questions"
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                  className="italic w-full h-full p-3 bg-white text-black border border-gray-300 rounded-sm min-h-[104px]"
-                ></textarea>
-              </div>
-              <div>
-                <input
-                  type="text"
-                  name="companyName"
-                  placeholder="*Company Name"
-                  value={formData.companyName}
-                  onChange={handleChange}
-                  required
-                  className="italic w-full p-3 bg-white text-black border border-gray-300 rounded-sm"
-                />
-              </div>
-              <div>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="*Email Address"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="italic w-full p-3 bg-white text-black border border-gray-300 rounded-sm"
-                />
-              </div>
-              <div className="md:col-span-2 lg:col-span-1">
-                <button
-                  type="submit"
-                  className="w-full p-3 bg-blue-400 hover:bg-blue-500 text-white font-medium transition-colors duration-200 rounded-sm"
-                >
-                  Submit
-                </button>
-              </div>
-            </form>
+            <ContactForm />
           </div>
 
           {/* Right Column - Contact Info */}
@@ -149,28 +44,23 @@ export default function HearForm() {
             <div className="mb-12">
               <div className="relative">
                 <h3 className="text-xl md:text-2xl font-bold mb-2">
-                  OUR ADDRESS
+                  {contactData?.title_our_address_section}
                 </h3>
                 <div className="w-[180px] h-[1.5px] bg-yellow-400"></div>
               </div>
               <div className="flex items-start mt-8">
                 <div className="mr-3 mt-1 flex-shrink-0">
-                  <svg
-                    className="w-7 h-7 sm:w-9 sm:h-9 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Contacts/${contactData?.
+                      icon_our_address_section}`}
+                    alt="image"
+                    width={40}
+                    height={40}
+                    className="md:w-full md:h-full object-cover"
+                  />
                 </div>
                 <div>
-                  <p className="font-bold">3948 LEGACY DRIVE | STE 106</p>
-                  <p>PLANO, TEXAS 75023</p>
+                  {contactData?.address_our_address_section}
                 </div>
               </div>
             </div>
@@ -178,50 +68,53 @@ export default function HearForm() {
             <div>
               <div className="relative">
                 <h3 className="text-xl md:text-2xl font-bold mb-2">
-                  OUR CONTACT
+                  {contactData?.title_our_contact_section}
                 </h3>
                 <div className="w-[180px] h-[1.5px] bg-yellow-400"></div>
               </div>
               <div className="flex items-center mt-8">
                 <div className="mr-3 flex-shrink-0">
-                  <svg
-                    className="w-6 h-6 sm:w-7 sm:h-7 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
-                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
-                  </svg>
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Contacts/${contactData?.
+                      mail_icon_our_contact_section}`}
+                    alt="image"
+                    width={40}
+                    height={40}
+                    className="md:w-full md:h-full object-cover"
+                  />
                 </div>
                 <a
                   href="mailto:CONTACT@WIITSOLUTIONS.COM"
                   className="hover:text-blue-300 transition-colors duration-200 text-sm sm:text-base break-all"
                 >
-                  CONTACT@WIITSOLUTIONS.COM
+                  {contactData?.mail_address_our_contact_section}
                 </a>
               </div>
               <div className="flex items-center mt-5">
                 <div className="mr-3 flex-shrink-0">
-                  <svg
-                    className="w-6 h-6 sm:w-7 sm:h-7 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
-                  </svg>
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Contacts/${contactData?.
+                      icon_our_contact_section}`}
+                    alt="image"
+                    width={40}
+                    height={40}
+                    className="md:w-full md:h-full object-cover"
+                  />
                 </div>
                 <a
                   href="tel:469-642-3303"
                   className="hover:text-blue-300 transition-colors duration-200 text-sm sm:text-base"
                 >
-                  469-642-3303
+                  {contactData?.phone_number_our_contact_section}
                 </a>
               </div>
+
             </div>
           </div>
         </div>
+      </div>
+      <div className="flex items-center justify-end pt-4">
+        <p>{contactData?.copyright}</p>
       </div>
     </section>
   );

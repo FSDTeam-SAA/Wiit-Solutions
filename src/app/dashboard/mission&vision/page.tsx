@@ -29,39 +29,42 @@ export default function MissionVisionEditor() {
     // Fetch initial data when component mounts
     useEffect(() => {
         const fetchInitialData = async () => {
-          try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/possible`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            })
-      
-            if (response.ok) {
-              const data = await response.json()
-              if (data) {
-                setFormData(prev => ({
-                  missionTitle: data.title1 || prev.missionTitle,
-                  mission: data.title1_content || prev.mission,
-                  visionTitle: data.title2 || prev.visionTitle,
-                  vision: data.title2_content || prev.vision,
-                }))
-      
-                if (data.img) {
-                  setImagePreview(`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Possibles/${data.img}`)
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/possible`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+
+                if (response.ok) {
+                    const data = await response.json()
+                    if (data) {
+                        setFormData(prev => ({
+                            missionTitle: data.title1 || prev.missionTitle,
+                            mission: data.title1_content || prev.mission,
+                            visionTitle: data.title2 || prev.visionTitle,
+                            vision: data.title2_content || prev.vision,
+                        }))
+
+                        if (data.img) {
+                            // Check if the image URL is already complete or needs the backend URL prefix
+                            const imageUrl = data.img.startsWith('http') 
+                                ? data.img 
+                                : `${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Possibles/${data.img}`
+                            setImagePreview(imageUrl)
+                        }
+                    }
                 }
-              }
+            } catch (error) {
+                console.error('Error fetching initial data:', error)
+                toast.error('Failed to load mission/vision data')
             }
-          } catch (error) {
-            console.error('Error fetching initial data:', error)
-            toast.error('Failed to load mission/vision data')
-          }
         }
-      
+
         if (token) {
-          fetchInitialData()
+            fetchInitialData()
         }
-      }, [token])
-      
+    }, [token])
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const { name, value } = e.target
@@ -185,7 +188,7 @@ export default function MissionVisionEditor() {
 
                         {/* Image Upload */}
                         <div className="space-y-2">
-                            <Label htmlFor="image">Company Image</Label>
+                            <Label htmlFor="image">Our Mission Image</Label>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                                 <div className="space-y-2">
                                     <input
@@ -209,20 +212,16 @@ export default function MissionVisionEditor() {
                                 <div className="border rounded-md overflow-hidden h-[150px] flex items-center justify-center bg-muted/30">
                                     {imagePreview ? (
                                         <Image
-                                            src={
-                                                imagePreview.startsWith("http") || imagePreview.startsWith("/")
-                                                    ? imagePreview
-                                                    : `${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${imagePreview}`
-                                            }
+                                            src={imagePreview}
                                             alt="Preview"
                                             width={200}
                                             height={150}
                                             className="object-contain w-full h-full"
+                                            unoptimized={imagePreview.startsWith('blob:')} // Needed for local blob URLs
                                         />
                                     ) : (
                                         <span className="text-sm text-muted-foreground">Image preview</span>
                                     )}
-
                                 </div>
                             </div>
                         </div>
