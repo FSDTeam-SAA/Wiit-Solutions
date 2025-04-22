@@ -9,41 +9,6 @@ import Link from "next/link";
 
 
 export default function Banner({ bannerData }: { bannerData: BannerSection }) {
-  console.log(bannerData)
-  // const [data, setData] = useState<HomeApiData | null>(null);
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-
-  //     try {
-  //       const response = await fetch(`http://127.0.0.1:8000/api/frontend-data`, {  
-  //         method: "GET",
-  //         headers: {
-  //           // Authorization: `Bearer ${token}`,
-  //           "Content-Type": "application/json",
-  //         },
-  //       });
-
-  //       if (!response.ok) {
-  //         throw new Error("Network response was not ok");
-  //       }
-
-  //       const result = await response.json();
-  //       // console.log("API Response:", result);  // Log the result
-  //       setData(result);
-  //     } catch (error) {
-  //       console.error("Failed to fetch data:", error);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []);
-  // const mappedData = data?.home?.map((item) => item);
-  // console.log(mappedData?.[0]);
-
-
-
-
 
   return (
     <section
@@ -80,7 +45,6 @@ export default function Banner({ bannerData }: { bannerData: BannerSection }) {
           </div>
           <div className="flex flex-col gap-y-4 lg:flex-row items-center justify-center  lg:justify-end pt-[200px] gap-2 ">
             <div>
-              <h1>unn</h1>
               <Image
                 src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Banners/${bannerData?.logo}`}
                 alt="Banner Image"

@@ -189,7 +189,7 @@ export default function EditableContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className=" px-4 py-8">
       <div className="py-4 text-[30px]">
         <h1>About Us</h1>
       </div>

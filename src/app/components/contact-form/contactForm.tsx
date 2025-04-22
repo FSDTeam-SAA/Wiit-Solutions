@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 
 function ContactForm() {
     const [formData, setFormData] = useState({
@@ -17,11 +17,52 @@ function ContactForm() {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Form submitted:", formData);
-        // Add your form submission logic here
+    
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/contactMessage`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    first_name: formData.firstName,
+                    last_name: formData.lastName,
+                    company_name: formData.companyName,
+                    email_address: formData.email,
+                    phone_number: formData.phone,
+                    comments: formData.message,
+                }),
+            });
+    
+            if (!res.ok) {
+                const errorData = await res.json();
+                console.error("Submission failed:", errorData);
+                alert("There was an issue submitting the form. Please try again.");
+                return;
+            }
+    
+            const result = await res.json();
+            console.log("Form successfully submitted:", result);
+            alert("Thank you for contacting us!");
+    
+            // Reset form
+            setFormData({
+                firstName: "",
+                lastName: "",
+                companyName: "",
+                email: "",
+                phone: "",
+                message: "",
+            });
+        } catch (error) {
+            console.error("Submission error:", error);
+            alert("An unexpected error occurred. Please try again.");
+        }
     };
+    
+
     return (
         <form
             onSubmit={handleSubmit}
@@ -101,7 +142,7 @@ function ContactForm() {
                 </button>
             </div>
         </form>
-    )
+    );
 }
 
-export default ContactForm
+export default ContactForm;

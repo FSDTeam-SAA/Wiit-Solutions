@@ -8,31 +8,34 @@ import ContactForm from "../contact-form/contactForm";
 export default function HearForm({ contactData }: { contactData: ContactSection }) {
 
   return (
-    <section className="text-white pt-8 pb-1 md:py-16 lg:pt-16 lg:pb-4 px-4 md:px-8 relative overflow-hidden bg-black">
+    <section className="text-white bg-black">
       {/* Mobile Image - Responsive */}
-      <div className="w-full h-[300px] sm:h-[400px] md:h-[800px] relative mb-16 md:mb-20">
-        <Image
-          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Contacts/${contactData?.breadcrumb}`}
-          alt="image"
-          width={1000}
-          height={1000}
-          className="md:w-full md:h-full object-cover"
-        />
-
-        {/* Heading - Responsive positioning */}
-        <div className="absolute left-0 lg:left-[-50%] right-0 bottom-[10px] md:bottom-[-1px] text-center">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white px-4">
+      <div
+        className="relative h-[300px] sm:h-[400px] md:h-[800px] lg:h-[900px] mb-16 md:mb-20"
+        style={{
+          backgroundImage: `url(${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Contacts/${contactData?.breadcrumb})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        {/* Bottom-left heading */}
+        <div className="left-[14%] absolute bottom-4 text-left px-4">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
             {contactData?.main_title}
           </h1>
-          <div className="w-[180px] h-[1.5px] bg-yellow-400 mx-auto mt-2"></div>
+          <div className="w-[180px] h-[1.5px] bg-yellow-400 mt-2"></div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto">
+
+
+
+      <div className="container">
         <div className="flex flex-col lg:flex-row lg:gap-12 xl:gap-36">
           {/* Left Column - Form */}
           <div className="w-full lg:w-1/2 mb-12 lg:mb-0">
-            <p className="text-sm md:text-base mb-8 max-w-2xl">
+            <p className="text-sm md:text-base mb-8">
               {contactData?.sub_title}
             </p>
 
@@ -48,7 +51,7 @@ export default function HearForm({ contactData }: { contactData: ContactSection 
                 </h3>
                 <div className="w-[180px] h-[1.5px] bg-yellow-400"></div>
               </div>
-              <div className="flex items-start mt-8">
+              <div className="flex items-center mt-8">
                 <div className="mr-3 mt-1 flex-shrink-0">
                   <Image
                     src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Contacts/${contactData?.
@@ -113,8 +116,10 @@ export default function HearForm({ contactData }: { contactData: ContactSection 
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-end pt-4">
-        <p>{contactData?.copyright}</p>
+      <div className="container">
+        <div className="flex items-center justify-end py-4">
+          <p>{contactData?.copyright}</p>
+        </div>
       </div>
     </section>
   );

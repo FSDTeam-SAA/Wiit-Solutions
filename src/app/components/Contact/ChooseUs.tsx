@@ -5,9 +5,9 @@ import React from "react";
 const ChooseUs = ({ chooseUsData }: { chooseUsData: WhyChooseUsSection }) => {
   return (
     <section className="bg-black text-white py-8 md:py-12 px-4 md:px-8 relative overflow-hidden lg:pr-24">
-      <div className="max-w-6xl mx-auto">
+      <div className="container">
         {/* Heading */}
-        <div className="mb-8 md:mb-12 relative">
+        <div className="relative">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-1">
             {chooseUsData?.main_title}
           </h2>

@@ -198,7 +198,7 @@ export default function ContactPage() {
     };
 
     return (
-        <div className="container mx-auto py-10 px-4">
+        <div className="py-10 px-4">
             <Card className="w-full mx-auto">
                 <CardHeader>
                     <CardTitle className="text-2xl">Contact Information Form</CardTitle>

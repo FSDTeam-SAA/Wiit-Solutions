@@ -48,9 +48,10 @@ function Main() {
     if (!homeData) return <div className="flex justify-center items-center h-screen">No data available</div>;
 
 
-    // console.log(homeData.header[0].itemlink1);
-    // const featuresId = homeData?.header?.[0]?.itemlink1?.replace("#", "") || "";
-    // const contactId = homeData?.header?.[0]?.itemlink2?.replace("#", "") || "";
+
+    const aboutId = homeData?.menu?.[0]?.link2?.replace("#", "") || "";
+    const serviceId = homeData?.menu?.[0]?.link3?.replace("#", "") || "";
+    const contactId = homeData?.menu?.[0]?.link4?.replace("#", "") || "";
 
 
     return (
@@ -58,9 +59,11 @@ function Main() {
             {homeData.about && homeData.about[0] && (
                 <Navbar navbarData={homeData.menu[0]} />
             )}
-            {homeData.about && homeData?.banner && (
-                <Banner bannerData={homeData?.banner} />
-            )}
+            <div id={aboutId}>
+                {homeData.about && homeData?.banner && (
+                    <Banner bannerData={homeData?.banner} />
+                )}
+            </div>
 
             {homeData.about && homeData.about[0] && (
                 <AboutUs aboutData={homeData.about[0]} />
@@ -70,19 +73,25 @@ function Main() {
                 <MissionVision missionVisionData={homeData.possible[0]} />
             )}
 
-            <OurComprehensiveServices/>
+            <div id={serviceId}>
+                {homeData.service && homeData.service[0] && (
+                    <Ourcorevalues coreValuesData={homeData.service[0]} />
+                )}
+            </div>
 
-            {homeData.service && homeData.service[0] && (
-                <Ourcorevalues coreValuesData={homeData.service[0]} />
+            {homeData.ourcomprenhensive && homeData.ourcomprenhensive[0] && (
+                <OurComprehensiveServices ourcomprenhensiveData={homeData.ourcomprenhensive[0]} />
             )}
 
             {homeData.whychooseus && homeData.whychooseus[0] && (
                 <ChooseUs chooseUsData={homeData.whychooseus[0]} />
             )}
 
-            {homeData.contact && homeData.contact[0] && (
-                <HearForm contactData={homeData.contact[0]} />
-            )}
+            <div id={contactId}>
+                {homeData.contact && homeData.contact[0] && (
+                    <HearForm contactData={homeData.contact[0]} />
+                )}
+            </div>
         </div>
 
     )

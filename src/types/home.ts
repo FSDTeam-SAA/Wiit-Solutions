@@ -7,6 +7,7 @@ export type HomePageData = {
     menu: MenuSection[];
     // ourcorevalue: any[]; // Also currently empty
     service: ServiceSection[];
+    ourcomprenhensive: OurComprehensiveService[];
 };
 
 export type PossibleSection = {
@@ -31,7 +32,7 @@ export type BannerSection = {
     back_img: string;    // image file name (e.g., background image)
     created_at: string;  // ISO date string
     updated_at: string;  // ISO date string
-  };
+};
 
 export type WhyChooseUsSection = {
     id: number;
@@ -48,6 +49,29 @@ export type WhyChooseUsSection = {
     middle_side_content: string;
     img: string;
     icon: string;
+    created_at: string;
+    updated_at: string;
+};
+
+export type OurComprehensiveService = {
+    id: number;
+    title: string;
+    subtitle: string;
+    title1: string;
+    content1: string;
+    img1: string;
+    title2: string;
+    content2: string;
+    img2: string;
+    title3: string;
+    content3: string;
+    img3: string;
+    title4: string;
+    content4: string;
+    img4: string;
+    title5: string;
+    content5: string;
+    img5: string;
     created_at: string;
     updated_at: string;
 };

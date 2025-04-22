@@ -41,6 +41,18 @@ export default function Navbar({ navbarData }: { navbarData: MenuSection }) {
       <div className="container py-6 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Logo */}
+
+
+          {/* Desktop Nav */}
+          <div className="hidden sm:flex space-x-8">
+            {navLinks.map(link => (
+              <Link key={link.href} href={link.href}>
+                <span className="cursor-pointer transition-colors duration-200">
+                  {link.name}
+                </span>
+              </Link>
+            ))}
+          </div>
           <div className="flex-shrink-0">
             <Image
               src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Menus/${navbarData?.logo}`}
@@ -50,11 +62,6 @@ export default function Navbar({ navbarData }: { navbarData: MenuSection }) {
               className="h-[100px] w-[100px]"
               aria-label="Website Logo"
             />
-          </div>
-
-          {/* Desktop Nav */}
-          <div className="hidden sm:flex space-x-8">
-            {navLinks.map(link => renderLink(link.name, link.href))}
           </div>
 
           {/* Mobile menu toggle */}

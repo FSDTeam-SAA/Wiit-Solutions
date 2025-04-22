@@ -4,8 +4,8 @@ import React from 'react'
 
 const Ourcorevalues = ({coreValuesData}: {coreValuesData: ServiceSection}) => {
   return (
-    <div className="bg-black text-white min-h-screen w-full flex flex-col items-center  p-4 md:p-8">
-    <div className="max-w-7xl w-full mt-10">
+    <div className="bg-black text-white w-full flex flex-col  px-4 md:p-8">
+    <div className="container w-full mt-10">
       <div className="mb-10">
         <div className="inline-block bg-white text-black px-6 py-2">
           <h1 className="text-2xl md:text-4xl font-bold tracking-wider">{coreValuesData?.main_title}</h1>
