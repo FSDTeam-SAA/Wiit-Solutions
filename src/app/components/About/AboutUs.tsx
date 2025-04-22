@@ -14,7 +14,7 @@ const AboutUs = ({ aboutData }: { aboutData: AboutSection }) => {
             {/* Top Heading and Image */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5 mt-20">
               <div className="sm:w-[48%]">
-                <h1 className=" flex flex-col justify-center items-center text-[40px] md:text-[60px] lg:text-[80px] font-bold text-white leading-none">
+                <h1 className=" flex flex-col text-[40px] md:text-[60px] lg:text-[80px] font-bold text-white leading-none">
                   <p>
                     {aboutData?.main_title
                       ?.split(" ")
@@ -28,7 +28,7 @@ const AboutUs = ({ aboutData }: { aboutData: AboutSection }) => {
                         )
                       )}
                   </p>
-                  <hr className="md:w-36 w-20 border-2 border-yellow-500" />
+                  <hr className="md:w-36 w-20 ml-10 border-2 border-yellow-500" />
                 </h1>
               </div>
               <div className="sm:w-[48%] ">

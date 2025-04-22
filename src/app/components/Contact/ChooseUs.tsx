@@ -4,7 +4,7 @@ import React from "react";
 
 const ChooseUs = ({ chooseUsData }: { chooseUsData: WhyChooseUsSection }) => {
   return (
-    <section className="bg-black text-white py-8 md:py-12 px-4 md:px-8 relative overflow-hidden lg:pr-24">
+    <section className="bg-black text-white relative overflow-hidden py-20">
       <div className="container">
         {/* Heading */}
         <div className="relative">
@@ -15,7 +15,7 @@ const ChooseUs = ({ chooseUsData }: { chooseUsData: WhyChooseUsSection }) => {
         </div>
 
         {/* Main content - Responsive grid */}
-        <div className="lg:flex">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">
           {/* Left Column - Think Outside the Box */}
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 mt-8 sm:mt-16 md:mt-28">
             <div className="flex-shrink-0 w-14 h-14 bg-transparent flex items-center justify-center">
@@ -27,7 +27,8 @@ const ChooseUs = ({ chooseUsData }: { chooseUsData: WhyChooseUsSection }) => {
                 className="w-14 h-14 object-cover"
               />
             </div>
-            <div className="flex-1">
+
+            <div>
               <div className="flex flex-col md:flex-row gap-4 md:gap-5 mb-6">
                 <h3 className="text-2xl sm:text-3xl font-bold leading-snug">
                   {chooseUsData?.left_side_main_title &&
@@ -125,7 +126,7 @@ const ChooseUs = ({ chooseUsData }: { chooseUsData: WhyChooseUsSection }) => {
       </div>
 
       {/* Question Mark Image - Responsive positioning */}
-      <div className="hidden lg:block absolute bottom-0 right-0 w-[50%] xl:w-[700px] h-[50%] xl:h-[600px] z-0">
+      <div className="hidden lg:block absolute bottom-0 mb-[-45px] right-0 w-[50%] xl:w-[700px] h-[50%] xl:h-[600px] z-0">
         <div className="relative w-full h-full">
           <Image
             src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/WhyChooseUs/${chooseUsData?.img}`}
@@ -136,7 +137,7 @@ const ChooseUs = ({ chooseUsData }: { chooseUsData: WhyChooseUsSection }) => {
           />
         </div>
       </div>
-      <div className="hidden lg:block absolute right-[2%] top-[25%] w-[200px] md:w-[400px] z-10 ">
+      <div className="hidden lg:block absolute right-[2%] top-[15%] w-[200px] md:w-[400px] z-10 ">
         <Image
           src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/WhyChooseUs/${chooseUsData?.icon}`}
           alt="image"
