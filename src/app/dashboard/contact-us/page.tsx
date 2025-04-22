@@ -1,331 +1,364 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import dynamic from "next/dynamic"
-import { FileIcon, ImageIcon } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import Image from "next/image"
+import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import QuillEditor from "../_components/quill-editor";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
 
-// Import Quill dynamically to avoid SSR issues
-const ReactQuill = dynamic(() => import("react-quill"), {
-  ssr: false,
-  loading: () => (
-    <div className="min-h-[150px] border rounded-lg flex items-center justify-center">Loading Editor...</div>
-  ),
-})
-
-// Editor component
-const Editor = ({ value, onChange }: { value: string; onChange: (content: string) => void }) => {
-  return (
-    <ReactQuill
-      theme="snow"
-      value={value}
-      onChange={onChange}
-      modules={{
-        toolbar: [
-          [{ header: [1, 2, 3, false] }],
-          ["bold", "italic", "underline", "strike"],
-          [{ list: "ordered" }, { list: "bullet" }],
-          ["link", "image"],
-          ["clean"],
-        ],
-      }}
-    />
-  )
+interface WhyChooseUsData {
+  main_title: string;
+  img: string;
+  icon: string;
+  left_side_main_title: string;
+  left_side_comments: string;
+  left_side_icon: string;
+  left_side_key_title: string;
+  left_side_content: string;
+  middle_side_main_title: string;
+  middle_side_comments: string;
+  middle_side_icon: string;
+  middle_side_key_title: string;
+  middle_side_content: string;
 }
 
-// Section type
-type SectionData = {
-  title: string
-  subtitle: string
-  keyBenefits: string
-  editorContent: string
-  image: File | null
-}
 
-type FormData = {
-  title: string
-  section1: SectionData
-  section2: SectionData
-}
 
-type SectionKey = "section1" | "section2"
+const WhyChooseUsEditor = () => {
+  const [formData, setFormData] = useState<WhyChooseUsData>({
+    main_title: "",
+    img: "",
+    icon: "",
+    left_side_main_title: "",
+    left_side_comments: "",
+    left_side_icon: "",
+    left_side_key_title: "",
+    left_side_content: "",
+    middle_side_main_title: "",
+    middle_side_comments: "",
+    middle_side_icon: "",
+    middle_side_key_title: "",
+    middle_side_content: "",
+  });
 
-const Page = () => {
-  const [formData, setFormData] = useState<FormData>({
-    title: "",
-    section1: {
-      title: "",
-      subtitle: "",
-      keyBenefits: "",
-      editorContent: "",
-      image: null,
-    },
-    section2: {
-      title: "",
-      subtitle: "",
-      keyBenefits: "",
-      editorContent: "",
-      image: null,
-    },
-  })
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [imagePreview1, setImagePreview1] = useState<string | null>(null)
-  const [imagePreview2, setImagePreview2] = useState<string | null>(null)
-  const [fileName1, setFileName1] = useState<string>("")
-  const [fileName2, setFileName2] = useState<string>("")
-  const [isClient, setIsClient] = useState(false)
+  const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
+  const [iconPreview, setIconPreview] = useState<string | null>(null);
+  const [leftIconPreview, setLeftIconPreview] = useState<string | null>(null);
+  const [middleIconPreview, setMiddleIconPreview] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
+  const handleInputChange = (field: keyof WhyChooseUsData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
-  useEffect(() => {
-    console.log("Form Data:", formData)
-  }, [formData])
+  const handleEditorChange = (field: keyof WhyChooseUsData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
-  const handleInputChange = (section: string, field: string, value: string) => {
-    if (section === "main") {
-      setFormData({
-        ...formData,
-        [field]: value,
-      })
-    } else {
-      const sectionKey = section as SectionKey
-      setFormData({
-        ...formData,
-        [sectionKey]: {
-          ...formData[sectionKey],
-          [field]: value,
-        },
-      })
+  const handleImageUpload = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    key: keyof WhyChooseUsData
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const previewUrl = URL.createObjectURL(file);
+
+    // Set the appropriate preview state
+    switch (key) {
+      case 'img':
+        setMainImagePreview(previewUrl);
+        break;
+      case 'icon':
+        setIconPreview(previewUrl);
+        break;
+      case 'left_side_icon':
+        setLeftIconPreview(previewUrl);
+        break;
+      case 'middle_side_icon':
+        setMiddleIconPreview(previewUrl);
+        break;
     }
-  }
 
-  const handleEditorChange = (section: SectionKey, content: string) => {
-    setFormData({
-      ...formData,
-      [section]: {
-        ...formData[section],
-        editorContent: content,
-      },
-    })
-  }
+    // Store the file name in form data
+    setFormData((prev) => ({ ...prev, [key]: file.name }));
+  };
 
-  const handleImageChange = (section: SectionKey, e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      const reader = new FileReader()
 
-      reader.onload = (event) => {
-        const preview = event.target?.result as string
 
-        if (section === "section1") {
-          setImagePreview1(preview)
-          setFileName1(file.name)
-        } else {
-          setImagePreview2(preview)
-          setFileName2(file.name)
-        }
 
-        setFormData((prev) => ({
-          ...prev,
-          [section]: {
-            ...prev[section],
-            image: file,
+  const { data: session } = useSession()
+  const token = (session?.user as { token: string })?.token
+
+
+  // Fetch data on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/whychooseus`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        }))
+        });
+        const json = await res.json();
+
+        if (json.success) {
+          const data = json.data;
+          console.log("API Response Data:", data);
+          setFormData({
+            main_title: data.main_title || "",
+            img: data.img || "",
+            icon: data.icon || "",
+            left_side_main_title: data.left_side_main_title || "",
+            left_side_comments: data.left_side_comments || "",
+            left_side_icon: data.left_side_icon || "",
+            left_side_key_title: data.left_side_key_title || "",
+            left_side_content: data.left_side_content || "",
+            middle_side_main_title: data.middle_side_main_title || "",
+            middle_side_comments: data.middle_side_comments || "",
+            middle_side_icon: data.middle_side_icon || "",
+            middle_side_key_title: data.middle_side_key_title || "",
+            middle_side_content: data.middle_side_content || "",
+          });
+
+          // Preview images
+          setMainImagePreview(data.img ? `${data.img}` : null);
+          setIconPreview(data.icon ? `${data.icon}` : null);
+          setLeftIconPreview(data.left_side_icon ? `${data.left_side_icon}` : null);
+          setMiddleIconPreview(data.middle_side_icon ? `${data.middle_side_icon}` : null);
+        }
+      } catch (err) {
+        console.error("Failed to fetch data:", err);
+      }
+    };
+
+    if (token) {
+      fetchData();
+    }
+  }, [token]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setErrors({});
+    setSuccessMessage("");
+    setErrorMessage("");
+
+    const validationErrors: { [key: string]: string } = {};
+    if (!formData.main_title) validationErrors.main_title = "Main title is required.";
+    if (!formData.img) validationErrors.img = "Main image is required.";
+    if (!formData.icon) validationErrors.icon = "Icon is required.";
+    if (!formData.left_side_icon) validationErrors.left_side_icon = "Left icon is required.";
+    if (!formData.middle_side_icon) validationErrors.middle_side_icon = "Middle icon is required.";
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const formPayload = new FormData();
+
+      Object.entries(formData).forEach(([key, value]) => {
+        if (!['img', 'icon', 'left_side_icon', 'middle_side_icon'].includes(key)) {
+          formPayload.append(key, value);
+        }
+      });
+
+      const fileInputs = document.querySelectorAll('input[type="file"]') as NodeListOf<HTMLInputElement>;
+      fileInputs.forEach(input => {
+        if (input.files?.[0]) {
+          formPayload.append(input.name, input.files[0]);
+        }
+      });
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/whychooseus`, {
+        method: "POST",
+        headers: {
+          Authorization: 'Bearer ' + token,
+        },
+        body: formPayload,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Something went wrong.");
       }
 
-      reader.readAsDataURL(file)
+      setSuccessMessage("Saved successfully!");
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message || "Submission failed.");
+      } else {
+        setErrorMessage("An unexpected error occurred.");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
-  }
 
-  const handleSubmit = () => {
-    console.log("Submitting form data:", formData)
-    // Send formData to backend here
-  }
+    console.log("Form submitted:", formData);
+  };
+
 
   return (
-    <div className="container mx-auto px-4 py-8 ">
-      <Card className="mb-8">
-        <CardContent className="pt-6">
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold mb-2">Title</h3>
+    <form onSubmit={handleSubmit} className="space-y-6 p-10">
+      <div>
+        <Label className="text-2xl">Main Title</Label>
+        <Input
+          value={formData.main_title}
+          onChange={(e) => handleInputChange("main_title", e.target.value)}
+        />
+        {errors.main_title && <p className="text-red-500">{errors.main_title}</p>}
+      </div>
+
+      <div>
+        <Label className=" text-2xl">Main Image</Label>
+        <Input
+          type="file"
+          name="img"
+          accept="image/*"
+          onChange={(e) => handleImageUpload(e, "img")}
+        />
+        {mainImagePreview && (
+          <Image src={mainImagePreview} alt="Preview" width={40} height={40} className="mt-2 w-40 h-auto" />
+        )}
+        {errors.img && <p className="text-red-500">{errors.img}</p>}
+      </div>
+
+      <div>
+        <Label>Icon</Label>
+        <Input
+          type="file"
+          name="icon"
+          accept="image/*"
+          onChange={(e) => handleImageUpload(e, "icon")}
+        />
+        {iconPreview && <Image src={iconPreview} alt="Preview" width={20} height={20} className="mt-2 w-20 h-20" />}
+        {errors.icon && <p className="text-red-500">{errors.icon}</p>}
+      </div>
+
+      <div className="border-t pt-4">
+        <h3 className="text-lg font-medium mb-4">Left Side Content</h3>
+
+        <div className="space-y-4">
+          <div>
+            <Label>Main Title</Label>
             <Input
-              placeholder="Write here"
-              className="w-full"
-              value={formData.title}
-              onChange={(e) => handleInputChange("main", "title", e.target.value)}
+              value={formData.left_side_main_title}
+              onChange={(e) => handleInputChange("left_side_main_title", e.target.value)}
             />
           </div>
 
-          {/* Section 1 */}
-          <div className="mb-8 p-4 border rounded-lg">
-            <div className="flex items-center gap-2 mb-4">
-              <h3 className="text-lg font-medium">Section 1</h3>
-              <ImageIcon className="h-5 w-5 text-gray-500" />
-            </div>
-
-            <div className="mb-4">
-              <div className="relative mb-4">
-                <Input
-                  type="file"
-                  id="file-upload-1"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={(e) => handleImageChange("section1", e)}
-                />
-                <label
-                  htmlFor="file-upload-1"
-                  className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:bg-gray-50 transition-colors"
-                >
-                  {imagePreview1 ? (
-                    <div className="w-full">
-                      <Image
-                        src={imagePreview1 || "/placeholder.svg"}
-                        alt="Preview"
-                        className="max-h-48 mx-auto mb-2 object-contain"
-                        width={300}
-                        height={200}
-                      />
-                      <p className="text-center text-sm text-gray-500 break-all">{fileName1}</p>
-                    </div>
-                  ) : (
-                    <div className="text-center">
-                      <FileIcon className="h-10 w-10 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">Click to upload image</p>
-                    </div>
-                  )}
-                </label>
-              </div>
-
-              <p className="font-medium mb-1">Title</p>
-              <Input
-                placeholder="Write here"
-                className="w-full mb-4"
-                value={formData.section1.title}
-                onChange={(e) => handleInputChange("section1", "title", e.target.value)}
-              />
-
-              <p className="font-medium mb-1">Subtitle</p>
-              <Input
-                placeholder="Write here"
-                className="w-full mb-4"
-                value={formData.section1.subtitle}
-                onChange={(e) => handleInputChange("section1", "subtitle", e.target.value)}
-              />
-
-              <p className="font-medium mb-1">Key Benefits:</p>
-              <Input
-                placeholder="Write here"
-                className="w-full mb-4"
-                value={formData.section1.keyBenefits}
-                onChange={(e) => handleInputChange("section1", "keyBenefits", e.target.value)}
-              />
-
-              <div className="mb-4">
-                <p className="font-medium mb-1">Detailed Description:</p>
-                <div className="min-h-[150px] border rounded-lg">
-                  {isClient && (
-                    <Editor
-                      value={formData.section1.editorContent}
-                      onChange={(content) => handleEditorChange("section1", content)}
-                    />
-                  )}
-                </div>
-              </div>
-            </div>
+          <div>
+            <Label>Comments</Label>
+            <Input
+              value={formData.left_side_comments}
+              onChange={(e) => handleInputChange("left_side_comments", e.target.value)}
+            />
           </div>
 
-          {/* Section 2 */}
-          <div className="mb-8 p-4 border rounded-lg">
-            <div className="flex items-center gap-2 mb-4">
-              <h3 className="text-lg font-medium">Section 2</h3>
-              <ImageIcon className="h-5 w-5 text-gray-500" />
-            </div>
-
-            <div className="mb-4">
-              <div className="relative mb-4">
-                <Input
-                  type="file"
-                  id="file-upload-2"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={(e) => handleImageChange("section2", e)}
-                />
-                <label
-                  htmlFor="file-upload-2"
-                  className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:bg-gray-50 transition-colors"
-                >
-                  {imagePreview2 ? (
-                    <div className="w-full">
-                      <Image
-                        src={imagePreview2 || "/placeholder.svg"}
-                        alt="Preview"
-                        className="max-h-48 mx-auto mb-2 object-contain"
-                        width={300}
-                        height={200}
-                      />
-                      <p className="text-center text-sm text-gray-500 break-all">{fileName2}</p>
-                    </div>
-                  ) : (
-                    <div className="text-center">
-                      <FileIcon className="h-10 w-10 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">Click to upload image</p>
-                    </div>
-                  )}
-                </label>
-              </div>
-
-              <p className="font-medium mb-1">Title</p>
-              <Input
-                placeholder="Write here"
-                className="w-full mb-4"
-                value={formData.section2.title}
-                onChange={(e) => handleInputChange("section2", "title", e.target.value)}
-              />
-
-              <p className="font-medium mb-1">Subtitle</p>
-              <Input
-                placeholder="Write here"
-                className="w-full mb-4"
-                value={formData.section2.subtitle}
-                onChange={(e) => handleInputChange("section2", "subtitle", e.target.value)}
-              />
-
-              <p className="font-medium mb-1">Key Benefits:</p>
-              <Input
-                placeholder="Write here"
-                className="w-full mb-4"
-                value={formData.section2.keyBenefits}
-                onChange={(e) => handleInputChange("section2", "keyBenefits", e.target.value)}
-              />
-
-              <div className="mb-4">
-                <p className="font-medium mb-1">Detailed Description:</p>
-                <div className="min-h-[150px] border rounded-lg">
-                  {isClient && (
-                    <Editor
-                      value={formData.section2.editorContent}
-                      onChange={(content) => handleEditorChange("section2", content)}
-                    />
-                  )}
-                </div>
-              </div>
-            </div>
+          <div>
+            <Label>Key Title</Label>
+            <Input
+              value={formData.left_side_key_title}
+              onChange={(e) => handleInputChange("left_side_key_title", e.target.value)}
+            />
           </div>
 
-          <Button className="w-full md:w-auto" onClick={handleSubmit}>
-            Submit
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
+          <div className="space-y-2">
+            <Label>Content</Label>
+            <QuillEditor
+              id="left_side_content"
+              value={formData.left_side_content}
+              onChange={(val) => handleEditorChange("left_side_content", val)}
+            />
+          </div>
 
-export default Page
+          <div>
+            <Label>Icon</Label>
+            <Input
+              type="file"
+              name="left_side_icon"
+              accept="image/*"
+              onChange={(e) => handleImageUpload(e, "left_side_icon")}
+            />
+            {leftIconPreview && <Image src={leftIconPreview} alt="Preview" width={200} height={200} className="mt-2 w-20 h-20" />}
+            {errors.left_side_icon && <p className="text-red-500">{errors.left_side_icon}</p>}
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t pt-4">
+        <h3 className="text-lg font-medium mb-4">Middle Side Content</h3>
+
+        <div className="space-y-4">
+          <div>
+            <Label>Main Title</Label>
+            <Input
+              value={formData.middle_side_main_title}
+              onChange={(e) => handleInputChange("middle_side_main_title", e.target.value)}
+            />
+          </div>
+
+          <div>
+            <Label>Comments</Label>
+            <Input
+              value={formData.middle_side_comments}
+              onChange={(e) => handleInputChange("middle_side_comments", e.target.value)}
+            />
+          </div>
+
+          <div>
+            <Label>Key Title</Label>
+            <Input
+              value={formData.middle_side_key_title}
+              onChange={(e) => handleInputChange("middle_side_key_title", e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Content</Label>
+            <QuillEditor
+              id="middle_side_content"
+              value={formData.middle_side_content}
+              onChange={(val) => handleEditorChange("middle_side_content", val)}
+            />
+          </div>
+
+          <div>
+            <Label>Icon</Label>
+            <Input
+              type="file"
+              name="middle_side_icon"
+              accept="image/*"
+              onChange={(e) => handleImageUpload(e, "middle_side_icon")}
+            />
+            {middleIconPreview && (
+              <Image src={middleIconPreview} alt="Preview" width={200} height={200} className="mt-2 w-20 h-20" />
+            )}
+            {errors.middle_side_icon && (
+              <p className="text-red-500">{errors.middle_side_icon}</p>
+            )}
+          </div>
+        </div>
+      </div>
+      {/* ✅ Show success or error messages */}
+      {successMessage && <p className="text-green-600 font-medium">{successMessage}</p>}
+      {errorMessage && <p className="text-red-600 font-medium">{errorMessage}</p>}
+
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Saving..." : "Save"}
+      </Button>
+    </form>
+  );
+};
+
+export default WhyChooseUsEditor;

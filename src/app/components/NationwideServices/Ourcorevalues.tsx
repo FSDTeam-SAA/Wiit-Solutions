@@ -1,13 +1,14 @@
+import { ServiceSection } from '@/types/home'
 import Image from 'next/image'
 import React from 'react'
 
-const Ourcorevalues = () => {
+const Ourcorevalues = ({coreValuesData}: {coreValuesData: ServiceSection}) => {
   return (
-    <div className="bg-black text-white min-h-screen w-full flex flex-col items-center  p-4 md:p-8">
-    <div className="max-w-7xl w-full mt-10">
+    <div className="bg-black text-white w-full flex flex-col  px-4 md:p-8">
+    <div className="container w-full mt-10">
       <div className="mb-10">
         <div className="inline-block bg-white text-black px-6 py-2">
-          <h1 className="text-2xl md:text-4xl font-bold tracking-wider">OUR CORE VALUES</h1>
+          <h1 className="text-2xl md:text-4xl font-bold tracking-wider">{coreValuesData?.main_title}</h1>
         </div>
       </div>
 
@@ -16,12 +17,12 @@ const Ourcorevalues = () => {
           {/* Integrity */}
           <div className="flex items-start gap-4">
             <div className="bg-[#a3d8e6] rounded-full p-2 flex-shrink-0">
-            <Image src="/image/INTEGRITY.png" alt=' ' width={100} height={100} className='w-7 h-7 object-cover'/>
+            <Image src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Services/${coreValuesData?.icon1}`} alt=' ' width={100} height={100} className='w-7 h-7 object-cover'/>
             </div>
             <div>
-              <h2 className="text-lg md:text-xl font-semibold tracking-wider mb-2">INTEGRITY</h2>
+              <h2 className="text-lg md:text-xl font-semibold tracking-wider mb-2">{coreValuesData?.subtitle1}</h2>
               <p className="text-sm md:text-base text-gray-300">
-                We conduct business with honesty, transparency, and ethical practices.
+                {coreValuesData?.description1}
               </p>
             </div>
           </div>
@@ -29,12 +30,12 @@ const Ourcorevalues = () => {
           {/* People First */}
           <div className="flex items-start gap-4">
             <div className="bg-[#a3d8e6] rounded-full p-2 flex-shrink-0">
-            <Image src="/image/PEOPLE-FIRST.png" alt=' ' width={100} height={100} className='w-7 h-7 object-cover'/>
+            <Image src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Services/${coreValuesData?.icon2}`} alt=' ' width={100} height={100} className='w-7 h-7 object-cover'/>
             </div>
             <div>
-              <h2 className="text-lg md:text-xl font-semibold tracking-wider mb-2">PEOPLE FIRST</h2>
+              <h2 className="text-lg md:text-xl font-semibold tracking-wider mb-2">{coreValuesData?.subtitle2}</h2>
               <p className="text-sm md:text-base text-gray-300">
-                We prioritize the well-being and success of our clients, employees, and partners.
+              {coreValuesData?.description2}
               </p>
             </div>
           </div>
@@ -42,26 +43,24 @@ const Ourcorevalues = () => {
           {/* Diversity */}
           <div className="flex items-start gap-4">
             <div className="bg-[#a3d8e6] rounded-full p-2 flex-shrink-0">
-            <Image src="/image/DIVERSITY.png" alt=' ' width={100} height={100} className='w-7 h-7 object-cover'/>
+            <Image src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Services/${coreValuesData?.icon3}`} alt=' ' width={100} height={100} className='w-7 h-7 object-cover'/>
             </div>
             <div>
-              <h2 className="text-lg md:text-xl font-semibold tracking-wider mb-2">DIVERSITY</h2>
+              <h2 className="text-lg md:text-xl font-semibold tracking-wider mb-2">{coreValuesData?.subtitle3}</h2>
               <p className="text-sm md:text-base text-gray-300">
-                We champion diversity and inclusivity, particularly supporting and promoting underrepresented
-                demographics in the IT industry.
+              {coreValuesData?.description3}
               </p>
             </div>
           </div>
           {/* Quality Over Quantity */}
           <div className="flex items-start gap-4">
             <div className="bg-[#a3d8e6] rounded-full p-2 flex-shrink-0">
-            <Image src="/image/QUALITY.png" alt=' ' width={100} height={100} className='w-7 h-7 object-cover'/>
+            <Image src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Services/${coreValuesData?.icon4}`} alt=' ' width={100} height={100} className='w-7 h-7 object-cover'/>
             </div>
             <div>
-              <h2 className="text-lg md:text-xl font-semibold tracking-wider mb-2">QUALITY OVER QUANTITY</h2>
+              <h2 className="text-lg md:text-xl font-semibold tracking-wider mb-2">{coreValuesData?.subtitle4}</h2>
               <p className="text-sm md:text-base text-gray-300">
-                We prioritize delivering high-quality solutions and services over merely increasing our volume of
-                work.
+              {coreValuesData?.description4}
               </p>
             </div>
           </div>
@@ -70,7 +69,7 @@ const Ourcorevalues = () => {
         <div className="md:w-1/2 flex justify-center items-center mt-8 md:mt-0">
           <div className="relative w-full max-w-md aspect-square">
             <Image
-              src="/image/image.jpg"
+              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Services/${coreValuesData?.img}`} 
               alt="Target with hand representing precision and goal achievement"
               fill
               className="object-cover rounded-full"

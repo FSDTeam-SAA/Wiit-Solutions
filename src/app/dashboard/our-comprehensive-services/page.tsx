@@ -1,209 +1,287 @@
-// @typescript-eslint / no - explicit - any
 "use client"
-import type React from "react"
-import { useState, useEffect, type ChangeEvent, type FormEvent } from "react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Loader2, X } from "lucide-react"
-import dynamic from "next/dynamic"
-import Image from "next/image"
-import "react-quill/dist/quill.snow.css"
 
-// Properly typed ReactQuill for dynamic import
-const ReactQuill = dynamic(() => import("react-quill"), {
-    ssr: false,
-}) as unknown as React.ComponentType<{
-    value: string
-    onChange: (value: string) => void
-    theme?: string
-    placeholder?: string
-    className?: string
-    modules?: Record<string, unknown>
-}>
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Upload } from 'lucide-react'
+import Image from 'next/image'
+import React, { useEffect, useRef, useState } from 'react'
+import QuillEditor from '../_components/quill-editor'
+import { Button } from '@/components/ui/button'
+import { useSession } from 'next-auth/react'
 
-interface FormDataType {
-    mainTitle: string
+interface FormData {
+    title: string
     subtitle: string
-    [key: string]: string | File | null
+    title1: string
+    content1: string
+    title2: string
+    content2: string
+    title3: string
+    content3: string
+    title4: string
+    content4: string
+    title5: string
+    content5: string
 }
 
-export default function Page() {
-    const [isLoading, setIsLoading] = useState(false)
-    const [formData, setFormData] = useState<FormDataType>({
-        mainTitle: "",
-        subtitle: "",
-        section1Image: null,
-        section1ImagePreview: null,
-        section1Title: "",
-        section1Content: "",
-        section2Image: null,
-        section2ImagePreview: null,
-        section2Title: "",
-        section2Content: "",
-        section3Image: null,
-        section3ImagePreview: null,
-        section3Title: "",
-        section3Content: "",
-        section4Image: null,
-        section4ImagePreview: null,
-        section4Title: "",
-        section4Content: "",
-        section5Image: null,
-        section5ImagePreview: null,
-        section5Title: "",
-        section5Content: "",
+interface FormErrors {
+    [key: string]: string
+}
+
+export default function ComprehensiveServiceForm() {
+    const { data: session } = useSession()
+    const token = (session?.user as { token: string })?.token
+    console.log(token)
+
+    const [content, setContent] = useState<FormData>({
+        title: '',
+        subtitle: '',
+        title1: '',
+        content1: '',
+        title2: '',
+        content2: '',
+        title3: '',
+        content3: '',
+        title4: '',
+        content4: '',
+        title5: '',
+        content5: ''
     })
 
+    const [errors, setErrors] = useState<FormErrors>({})
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [successMessage, setSuccessMessage] = useState('')
+    const [errorMessage, setErrorMessage] = useState('')
+
+    const imgRefs = [
+        useRef<HTMLInputElement>(null),
+        useRef<HTMLInputElement>(null),
+        useRef<HTMLInputElement>(null),
+        useRef<HTMLInputElement>(null),
+        useRef<HTMLInputElement>(null)
+    ]
+
+    const [imagePreviews, setImagePreviews] = useState<(string | null)[]>([null, null, null, null, null])
+    const [imageFiles, setImageFiles] = useState<(File | null)[]>([null, null, null, null, null])
+
     useEffect(() => {
-        return () => {
-            Object.keys(formData).forEach((key) => {
-                if (key.includes("Preview") && typeof formData[key] === "string") {
-                    URL.revokeObjectURL(formData[key] as string)
+        const fetchData = async () => {
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/ourcomprensive`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
+                const data = await res.json()
+                if (data.success) {
+                    const {
+                        title,
+                        subtitle,
+                        title1,
+                        content1,
+                        title2,
+                        content2,
+                        title3,
+                        content3,
+                        title4,
+                        content4,
+                        title5,
+                        content5,
+                        img1,
+                        img2,
+                        img3,
+                        img4,
+                        img5
+                    } = data.data
+                    setContent({
+                        title,
+                        subtitle,
+                        title1,
+                        content1,
+                        title2,
+                        content2,
+                        title3,
+                        content3,
+                        title4,
+                        content4,
+                        title5,
+                        content5
+                    })
+
+                    // Set image previews with full URLs
+                    setImagePreviews([
+                        img1 ? `${img1}` : null,
+                        img2 ? `${img2}` : null,
+                        img3 ? `${img3}` : null,
+                        img4 ? `${img4}` : null,
+                        img5 ? `${img5}` : null
+                    ])
+                }
+            } catch (err) {
+                console.error('Failed to fetch existing data:', err)
+                setErrorMessage('Failed to load existing data')
+            }
+        }
+        if (token) fetchData()
+    }, [token])
+
+    const handleImageChange = (
+        e: React.ChangeEvent<HTMLInputElement>,
+        index: number
+    ) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        if (!file.type.startsWith('image/')) {
+            setErrors(prev => ({ ...prev, [`img${index + 1}`]: 'Please upload an image file' }))
+            return
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            setErrors(prev => ({ ...prev, [`img${index + 1}`]: 'Image size should be less than 2MB' }))
+            return
+        }
+
+        // Create preview URL
+        const previewUrl = URL.createObjectURL(file)
+        
+        // Update states
+        setImagePreviews(prev => {
+            const newPreviews = [...prev]
+            newPreviews[index] = previewUrl
+            return newPreviews
+        })
+
+        setImageFiles(prev => {
+            const newFiles = [...prev]
+            newFiles[index] = file
+            return newFiles
+        })
+
+        // Clear any previous error
+        setErrors(prev => {
+            const newErrors = { ...prev }
+            delete newErrors[`img${index + 1}`]
+            return newErrors
+        })
+    }
+
+    const handleEditorChange = (field: keyof FormData, value: string) => {
+        setContent(prev => ({ ...prev, [field]: value }))
+    }
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target
+        setContent(prev => ({ ...prev, [name]: value }))
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setIsSubmitting(true)
+        setSuccessMessage('')
+        setErrorMessage('')
+
+        try {
+            const formData = new FormData()
+
+            // Append all content fields
+            Object.entries(content).forEach(([key, value]) => {
+                formData.append(key, value)
+            })
+
+            // Append image files if they exist
+            imageFiles.forEach((file, index) => {
+                if (file) {
+                    formData.append(`img${index + 1}`, file)
                 }
             })
-        }
-    }, [formData])
 
-    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value, files } = e.target
-
-        if (files && files.length > 0) {
-            const previewUrl = URL.createObjectURL(files[0])
-            const previewName = `${name}Preview`
-
-            if (typeof formData[previewName] === "string") {
-                URL.revokeObjectURL(formData[previewName] as string)
-            }
-
-            setFormData({
-                ...formData,
-                [name]: files[0],
-                [previewName]: previewUrl,
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/ourcomprensive`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                body: formData
             })
-        } else {
-            setFormData({
-                ...formData,
-                [name]: value,
-            })
-        }
-    }
 
-    const handleQuillChange = (value: string, name: string) => {
-        setFormData({
-            ...formData,
-            [name]: value,
-        })
-    }
+            const result = await res.json()
 
-    const handleRemoveImage = (sectionName: string) => {
-        const imageKey = `${sectionName}Image`
-        const previewKey = `${sectionName}ImagePreview`
-
-        if (typeof formData[previewKey] === "string") {
-            URL.revokeObjectURL(formData[previewKey] as string)
-        }
-
-        setFormData({
-            ...formData,
-            [imageKey]: null,
-            [previewKey]: null,
-        })
-    }
-
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        setIsLoading(true)
-
-        const submitData = new FormData()
-        Object.keys(formData).forEach((key) => {
-            if (!key.includes("Preview") && formData[key] !== null) {
-                submitData.append(key, formData[key] as string | Blob)
+            if (result.success) {
+                setSuccessMessage(result.message)
+                // Clear file inputs after successful submission
+                setImageFiles([null, null, null, null, null])
+                imgRefs.forEach(ref => {
+                    if (ref.current) ref.current.value = ''
+                })
+            } else {
+                throw new Error(result.message || 'Submission failed')
             }
-        })
-
-        console.log("Form submitted:", formData)
-
-        setTimeout(() => {
-            setIsLoading(false)
-        }, 2000)
+        } catch {
+            console.error('Submission error:')
+            setErrorMessage( 'Failed to save content')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
-    interface SectionComponentProps {
-        number: number
-        data: FormDataType
-    }
-
-    const SectionComponent = ({ number, data }: SectionComponentProps) => {
-        const sectionName = `section${number}`
-        const imageKey = `${sectionName}Image`
-        const previewKey = `${sectionName}ImagePreview`
-        const titleKey = `${sectionName}Title`
-        const contentKey = `${sectionName}Content`
-
+    const renderSection = (index: number) => {
+        const sectionNumber = index + 1
         return (
-            <div className="p-6 bg-white rounded-lg shadow-sm border">
-                <h4 className="text-lg font-medium mb-4">Section-{number}</h4>
-
-                <div className="mb-4">
-                    <p className="text-sm text-gray-600 mb-2">Upload Image</p>
-
-                    {data[previewKey] ? (
-                        <div className="relative mb-4">
-                            <div className="w-full rounded-lg overflow-hidden border border-gray-200 mb-2">
+            <div className="mb-8" key={sectionNumber}>
+                <div className="space-y-2 mb-4">
+                    <Label htmlFor={`img${sectionNumber}`}>Upload image for section {sectionNumber}</Label>
+                    <input
+                        type="file"
+                        id={`img${sectionNumber}`}
+                        ref={imgRefs[index]}
+                        onChange={(e) => handleImageChange(e, index)}
+                        accept="image/*"
+                        className="hidden"
+                    />
+                    <div
+                        onClick={() => imgRefs[index].current?.click()}
+                        className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50"
+                    >
+                        {imagePreviews[index] ? (
+                            <>
                                 <Image
-                                    src={(data[previewKey] as string) || "/placeholder.svg"}
-                                    alt={`Section ${number} preview`}
-                                    width={800}
-                                    height={150}
-                                    className="w-full h-[150px] object-contain bg-gray-100"
+                                    src={imagePreviews[index]}
+                                    alt={`Section ${sectionNumber} Preview`}
+                                    className="max-h-40 mx-auto object-contain"
+                                    width={200}
+                                    height={200}
                                 />
+                                <p className="text-sm text-gray-500">Click to change image</p>
+                            </>
+                        ) : (
+                            <div className="py-4 flex flex-col items-center">
+                                <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                                <p className="text-sm text-gray-500">Click to upload image</p>
                             </div>
-                            <Button
-                                type="button"
-                                variant="destructive"
-                                size="icon"
-                                className="absolute top-2 right-2 h-8 w-8 rounded-full"
-                                onClick={() => handleRemoveImage(sectionName)}
-                            >
-                                <X className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    ) : (
-                        <Input
-                            type="file"
-                            name={imageKey}
-                            onChange={handleInputChange}
-                            className="mb-4"
-                            accept="image/*"
-                        />
+                        )}
+                    </div>
+                    {errors[`img${sectionNumber}`] && (
+                        <p className="text-sm text-red-500 mt-1">{errors[`img${sectionNumber}`]}</p>
                     )}
                 </div>
 
-                <p className="text-sm text-gray-600 mb-2">Title</p>
-                <Input
-                    placeholder="Title"
-                    name={titleKey}
-                    value={(data[titleKey] as string) || ""}
-                    onChange={handleInputChange}
-                    className="mb-4"
-                />
-
-                <p className="text-sm text-gray-600 mb-2">Content</p>
                 <div className="mb-4">
-                    <ReactQuill
-                        value={(data[contentKey] as string) || ""}
-                        onChange={(value) => handleQuillChange(value, contentKey)}
-                        theme="snow"
-                        className="min-h-[150px] bg-white"
-                        modules={{
-                            toolbar: [
-                                [{ header: [1, 2, 3, false] }],
-                                ["bold", "italic", "underline", "strike"],
-                                [{ list: "ordered" }, { list: "bullet" }],
-                                ["link", "image"],
-                                ["clean"],
-                            ],
-                        }}
+                    <Label htmlFor={`title${sectionNumber}`}>Title {sectionNumber}</Label>
+                    <Input
+                        type="text"
+                        name={`title${sectionNumber}`}
+                        id={`title${sectionNumber}`}
+                        value={content[`title${sectionNumber}` as keyof FormData]}
+                        onChange={handleInputChange}
+                    />
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor={`content${sectionNumber}`}>Content {sectionNumber}</Label>
+                    <QuillEditor
+                        id={`content${sectionNumber}`}
+                        value={content[`content${sectionNumber}` as keyof FormData]}
+                        onChange={(val) => handleEditorChange(`content${sectionNumber}` as keyof FormData, val)}
                     />
                 </div>
             </div>
@@ -211,41 +289,47 @@ export default function Page() {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <form onSubmit={handleSubmit} className="space-y-8">
-                <div className="p-6 bg-white rounded-lg shadow-sm border">
-                    <h3 className="text-xl font-semibold mb-4">Title</h3>
-                    <Input
-                        placeholder="Title"
-                        name="mainTitle"
-                        value={formData.mainTitle}
-                        onChange={handleInputChange}
-                        className="mb-4"
-                    />
-                    <p className="text-sm text-gray-600 mb-2">Subtitle</p>
-                    <Input
-                        placeholder="Subtitle"
-                        name="subtitle"
-                        value={formData.subtitle}
-                        onChange={handleInputChange}
-                        className="mb-4"
-                    />
+        <div className="container mx-auto py-8">
+            <form onSubmit={handleSubmit}>
+                <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <Label htmlFor="title">Main Title</Label>
+                        <Input
+                            type="text"
+                            name="title"
+                            id="title"
+                            value={content.title}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor="subtitle">Subtitle</Label>
+                        <Input
+                            type="text"
+                            name="subtitle"
+                            id="subtitle"
+                            value={content.subtitle}
+                            onChange={handleInputChange}
+                        />
+                    </div>
                 </div>
 
-                {[1, 2, 3, 4, 5].map((num) => (
-                    <SectionComponent key={num} number={num} data={formData} />
-                ))}
+                {[0, 1, 2, 3, 4].map((index) => renderSection(index))}
 
-                <div className="flex justify-end">
-                    <Button type="submit" disabled={isLoading} className="min-w-[120px]">
-                        {isLoading ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Submitting
-                            </>
-                        ) : (
-                            "Submit"
-                        )}
+                {successMessage && (
+                    <div className="mb-4 p-4 bg-green-100 text-green-700 rounded">
+                        {successMessage}
+                    </div>
+                )}
+                {errorMessage && (
+                    <div className="mb-4 p-4 bg-red-100 text-red-700 rounded">
+                        {errorMessage}
+                    </div>
+                )}
+
+                <div className="mt-8">
+                    <Button type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Saving...' : 'Save Content'}
                     </Button>
                 </div>
             </form>

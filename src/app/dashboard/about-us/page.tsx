@@ -1,278 +1,375 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
 import { Loader2 } from "lucide-react"
-import axios from "axios"
 import { toast } from "sonner"
 import { useSession } from "next-auth/react"
+import QuillEditor from "../_components/quill-editor"
 
 export default function EditableContent() {
   const [content, setContent] = useState({
-    title: "Main Title",
-    subtitle1: "First Subtitle",
-    subtitle2: "Second Subtitle",
-    description1: "This is the first description. You can edit this text to add your own content.",
-    description2: "This is the second description. You can edit this text to add your own content.",
+    title: "",
+    subtitle1: "",
+    description1: "",
+    subtitle2: "",
+    description2: "",
+    buttonText: "",
+    buttonLink: "",
     image1: {
-      url: "/placeholder.svg?height=300&width=400",
-      fileName: "placeholder-image-1.svg",
+      url: "",
+      fileName: "",
+      isNew: false,
     },
     image2: {
-      url: "/placeholder.svg?height=300&width=400",
-      fileName: "placeholder-image-2.svg",
+      url: "",
+      fileName: "",
+      isNew: false,
     },
   })
 
   const [isLoading, setIsLoading] = useState(false)
+  const [isFetching, setIsFetching] = useState(true)
+  const { data: session } = useSession()
+  const token = (session?.user as { token: string })?.token
 
-  // Log all data whenever content changes
-  useEffect(() => {
-    console.log("Current Content Data:", content)
-  }, [content])
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setContent((prev) => {
-      const newContent = { ...prev, [name]: value }
-      console.log(`Updated ${name}:`, newContent)
-      return newContent
-    })
+    setContent((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, imageKey: "image1" | "image2") => {
+  const handleEditorChange = (key: "description1" | "description2", value: string) => {
+    setContent((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const handleImageChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    imageKey: "image1" | "image2"
+  ) => {
     const file = e.target.files?.[0]
     if (file) {
       const imageUrl = URL.createObjectURL(file)
-      setContent((prev) => {
-        const newContent = {
-          ...prev,
-          [imageKey]: {
-            url: imageUrl,
-            fileName: file.name,
-          },
-        }
-        console.log(`Updated ${imageKey}:`, {
+      setContent((prev) => ({
+        ...prev,
+        [imageKey]: {
+          url: imageUrl,
           fileName: file.name,
-          size: `${(file.size / 1024).toFixed(2)} KB`,
-          type: file.type,
-        })
-        return newContent
-      })
+          isNew: true,
+        },
+      }))
     }
   }
 
-  const session = useSession();
-  const token = (session?.data?.user as { token: string })?.token
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      if (!token) return
 
-  const handleSaveChanges = async () => {
+      setIsFetching(true)
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/aboutus`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (response.ok) {
+          const { data } = await response.json()
+          if (data) {
+            setContent({
+              title: data.main_title || "",
+              subtitle1: data.first_paragraph_subtitle || "",
+              description1: data.first_paragraph_content || "",
+              subtitle2: data.second_paragraph_subtitle || "",
+              description2: data.second_paragraph_content || "",
+              buttonText: data.name || "",
+              buttonLink: data.link || "",
+              image1: {
+                url: data.img1 || "",
+                fileName: data.img1 ? data.img1.split('/').pop() || "image1" : "",
+                isNew: false,
+              },
+              image2: {
+                url: data.img2 || "",
+                fileName: data.img2 ? data.img2.split('/').pop() || "image2" : "",
+                isNew: false,
+              },
+            })
+          }
+        } else {
+          throw new Error("Failed to fetch data")
+        }
+      } catch (error) {
+        console.error("Error fetching initial data:", error)
+        toast.error("Failed to load About Us data")
+      } finally {
+        setIsFetching(false)
+      }
+    }
+
+    fetchInitialData()
+  }, [token])
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     setIsLoading(true)
-    console.log("Saving data...", content)
 
     try {
       const formData = new FormData()
-      formData.append("title", content.title)
-      formData.append("subtitle1", content.subtitle1)
-      formData.append("subtitle2", content.subtitle2)
-      formData.append("description1", content.description1)
-      formData.append("description2", content.description2)
+      formData.append("main_title", content.title)
+      formData.append("first_paragraph_subtitle", content.subtitle1)
+      formData.append("first_paragraph_content", content.description1)
+      formData.append("second_paragraph_subtitle", content.subtitle2)
+      formData.append("second_paragraph_content", content.description2)
+      formData.append("name", content.buttonText)
+      formData.append("link", content.buttonLink)
 
-      // If your API accepts file uploads:
       const fileInput1 = document.getElementById("image1") as HTMLInputElement
       const fileInput2 = document.getElementById("image2") as HTMLInputElement
 
-      if (fileInput1?.files?.[0]) {
-        formData.append("image1", fileInput1.files[0])
+      if (content.image1.isNew && fileInput1?.files?.[0]) {
+        formData.append("img1", fileInput1.files[0])
       }
 
-      if (fileInput2?.files?.[0]) {
-        formData.append("image2", fileInput2.files[0])
+      if (content.image2.isNew && fileInput2?.files?.[0]) {
+        formData.append("img2", fileInput2.files[0])
       }
 
-      const response = await axios.post("https://amit.scaleupdevagency.com/api/aboutus", formData, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/aboutus`, {
+        method: "POST",
         headers: {
-          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
+        body: formData,
       })
 
-      console.log("All Content Data Saved:", response.data)
-      toast.success("Content saved successfully!")
-    } catch  {
-      console.error("Error saving content:")
-      toast.error("Failed to save content.")
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.message || "Failed to save content")
+      }
+
+      const { data, message } = await response.json()
+      toast.success(message || "Content saved successfully!")
+
+      // Update state with new image URLs if they were uploaded
+      if (data) {
+        setContent(prev => ({
+          ...prev,
+          image1: {
+            url: data.img1 || prev.image1.url,
+            fileName: data.img1 ? data.img1.split('/').pop() || "image1" : prev.image1.fileName,
+            isNew: false,
+          },
+          image2: {
+            url: data.img2 || prev.image2.url,
+            fileName: data.img2 ? data.img2.split('/').pop() || "image2" : prev.image2.fileName,
+            isNew: false,
+          },
+        }))
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to save content")
+      console.error("Save error:", error)
     } finally {
       setIsLoading(false)
     }
   }
 
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-center items-center mb-6">
-        <h1 className="text-2xl font-bold">About Us Editor</h1>
-      </div>
 
-      <div className="grid md:grid-cols-2 gap-8 mb-8">
-        <Card className="md:col-span-2">
-          <CardContent className="p-6">
+  if (isFetching) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    )
+  }
+
+  return (
+    <div className=" px-4 py-8">
+      <div className="py-4 text-[30px]">
+        <h1>About Us</h1>
+      </div>
+      <Card>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="p-6 space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="title">Main Title</Label>
               <Input
                 id="title"
                 name="title"
                 value={content.title}
                 onChange={handleChange}
-                placeholder="Enter title"
+                placeholder="Enter main title"
                 disabled={isLoading}
+                required
               />
-              <div className="text-sm text-muted-foreground mt-1">
-                Current value: <span className="font-medium">{content.title}</span>
-              </div>
             </div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardContent className="p-6">
             <div className="space-y-2">
-              <Label htmlFor="subtitle1">First Subtitle</Label>
+              <Label htmlFor="subtitle1">First Paragraph Subtitle</Label>
               <Input
                 id="subtitle1"
                 name="subtitle1"
                 value={content.subtitle1}
                 onChange={handleChange}
-                placeholder="Enter first subtitle"
+                placeholder="Enter first paragraph subtitle"
                 disabled={isLoading}
+                required
               />
-              <div className="text-sm text-muted-foreground mt-1">
-                Current value: <span className="font-medium">{content.subtitle1}</span>
-              </div>
             </div>
 
-            <div className="space-y-2 mt-4">
-              <Label htmlFor="description1">First Description</Label>
-              <Textarea
+            <div className="space-y-2">
+              <Label htmlFor="description1">Description 1</Label>
+              <QuillEditor
                 id="description1"
-                name="description1"
                 value={content.description1}
-                onChange={handleChange}
-                placeholder="Enter first description"
-                rows={4}
-                disabled={isLoading}
+                onChange={(val) => handleEditorChange("description1", val)}
               />
-              <div className="text-sm text-muted-foreground mt-1">
-                Current value: <span className="font-medium">{content.description1}</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="buttonText">Button Text</Label>
+                <Input
+                  id="buttonText"
+                  name="buttonText"
+                  value={content.buttonText}
+                  onChange={handleChange}
+                  placeholder="Enter button text"
+                  disabled={isLoading}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="buttonLink">Button Link</Label>
+                <Input
+                  id="buttonLink"
+                  name="buttonLink"
+                  value={content.buttonLink}
+                  onChange={handleChange}
+                  placeholder="Enter button link"
+                  disabled={isLoading}
+                  required
+                  type="text"
+                />
               </div>
             </div>
 
-            <div className="space-y-2 mt-4">
-              <Label htmlFor="image1">First Image</Label>
-              <div className="flex flex-col gap-2">
+            <div className="space-y-2">
+              <Label htmlFor="image1">Image Left</Label>
+              {content.image1.url ? (
                 <div className="relative h-48 w-full border rounded-md overflow-hidden bg-muted">
                   <Image
-                    src={content.image1.url || "/placeholder.svg"}
-                    alt="First image preview"
+                    src={content.image1.url}
+                    alt="Image 1 preview"
                     fill
                     className="object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/placeholder.svg'
+                    }}
                   />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="image1"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange(e, "image1")}
-                    disabled={isLoading}
-                  />
+              ) : (
+                <div className="h-48 w-full border rounded-md bg-muted flex items-center justify-center">
+                  <span className="text-muted-foreground">No image selected</span>
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  File name: <span className="font-medium">{content.image1.fileName}</span>
-                </div>
-              </div>
+              )}
+              <Input
+                id="image1"
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleImageChange(e, "image1")}
+                disabled={isLoading}
+              />
+              {content.image1.fileName && (
+                <p className="text-sm text-muted-foreground">
+                  File: <span className="font-medium">{content.image1.fileName}</span>
+                </p>
+              )}
             </div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardContent className="p-6">
             <div className="space-y-2">
-              <Label htmlFor="subtitle2">Second Subtitle</Label>
+              <Label htmlFor="subtitle2">Second Paragraph Subtitle</Label>
               <Input
                 id="subtitle2"
                 name="subtitle2"
                 value={content.subtitle2}
                 onChange={handleChange}
-                placeholder="Enter second subtitle"
+                placeholder="Enter second paragraph subtitle"
                 disabled={isLoading}
+                required
               />
-              <div className="text-sm text-muted-foreground mt-1">
-                Current value: <span className="font-medium">{content.subtitle2}</span>
-              </div>
             </div>
 
-            <div className="space-y-2 mt-4">
-              <Label htmlFor="description2">Second Description</Label>
-              <Textarea
+            <div className="space-y-2">
+              <Label htmlFor="description2">Description 2</Label>
+              <QuillEditor
                 id="description2"
-                name="description2"
                 value={content.description2}
-                onChange={handleChange}
-                placeholder="Enter second description"
-                rows={4}
-                disabled={isLoading}
+                onChange={(val) => handleEditorChange("description2", val)}
               />
-              <div className="text-sm text-muted-foreground mt-1">
-                Current value: <span className="font-medium">{content.description2}</span>
-              </div>
             </div>
 
-            <div className="space-y-2 mt-4">
-              <Label htmlFor="image2">Second Image</Label>
-              <div className="flex flex-col gap-2">
+            <div className="space-y-2">
+              <Label htmlFor="image2">Image Right</Label>
+              {content.image2.url ? (
                 <div className="relative h-48 w-full border rounded-md overflow-hidden bg-muted">
                   <Image
-                    src={content.image2.url || "/placeholder.svg"}
-                    alt="Second image preview"
+                    src={content.image2.url}
+                    alt="Image 2 preview"
                     fill
                     className="object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/placeholder.svg'
+                    }}
                   />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="image2"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange(e, "image2")}
-                    disabled={isLoading}
-                  />
+              ) : (
+                <div className="h-48 w-full border rounded-md bg-muted flex items-center justify-center">
+                  <span className="text-muted-foreground">No image selected</span>
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  File name: <span className="font-medium">{content.image2.fileName}</span>
-                </div>
-              </div>
+              )}
+              <Input
+                id="image2"
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleImageChange(e, "image2")}
+                disabled={isLoading}
+              />
+              {content.image2.fileName && (
+                <p className="text-sm text-muted-foreground">
+                  File: <span className="font-medium">{content.image2.fileName}</span>
+                </p>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
             </div>
           </CardContent>
-        </Card>
-      </div>
-
-      <Button type="button" className="w-full" onClick={handleSaveChanges} disabled={isLoading}>
-        {isLoading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Saving...
-          </>
-        ) : (
-          "Save Changes"
-        )}
-      </Button>
+        </form>
+      </Card>
     </div>
   )
 }

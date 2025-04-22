@@ -1,271 +1,323 @@
 "use client"
 
-import type React from "react"
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ImagePlus, Loader2, Edit, Check } from 'lucide-react'
+import { ImagePlus, Loader2 } from 'lucide-react'
 import Image from "next/image"
-import dynamic from "next/dynamic"
+import QuillEditor from "../_components/quill-editor"
+import { useSession } from "next-auth/react"
+import { toast } from "sonner"
 
-// Dynamically import Quill with no SSR
-const ReactQuill = dynamic(() => import("react-quill"), {
-  ssr: false,
-  loading: () => (
-    <div className="border rounded-md p-3 min-h-[150px] flex items-center justify-center text-muted-foreground">
-      Loading editor...
-    </div>
-  ),
-})
 
 export default function EditContentForm() {
-  const [title, setTitle] = useState("My Awesome Project")
-  const [subtitle, setSubtitle] = useState("A brief tagline goes here")
-  const [description, setDescription] = useState(
-    "<p>This is a detailed description of the project. You can write multiple paragraphs here.</p>",
-  )
+  const { data: session } = useSession()
+  const token = (session?.user as { token: string })?.token
+
+  const [formData, setFormData] = useState({
+    title: "",
+    subtitle: "",
+    description: "",
+    buttonText: "",
+    buttonLink: "",
+  })
+
   const [logo, setLogo] = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
+  const [backgroundImage, setBackgroundImage] = useState<File | null>(null)
+  const [backgroundPreview, setBackgroundPreview] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [buttonText, setButtonText] = useState("Save Changes")
-  const [isEditingButton, setIsEditingButton] = useState(false)
-  const buttonEditRef = useRef<HTMLSpanElement>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Flag to track if Quill is loaded
-  const [quillLoaded, setQuillLoaded] = useState(false)
-
-  // Handle direct button text editing
-  const handleButtonTextEdit = () => {
-    if (buttonEditRef.current) {
-      const text = buttonEditRef.current.innerText.trim();
-      if (text) {
-        setButtonText(text);
-      } else {
-        // Reset to default if empty
-        buttonEditRef.current.innerText = buttonText;
-      }
-    }
+  const handleInputChange = (key: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [key]: value }))
+    setError(null)
   }
 
-  // Focus the editable span when editing mode is enabled
-  useEffect(() => {
-    if (isEditingButton && buttonEditRef.current) {
-      buttonEditRef.current.focus();
-    }
-  }, [isEditingButton]);
-
-  // Handle Quill loading
-  useEffect(() => {
-    // This will run only on the client side
-    setQuillLoaded(true);
-  }, []);
+  const handleEditorChange = (value: string) => {
+    handleInputChange("description", value)
+  }
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      setLogo(file)
+    const file = e.target.files?.[0]
+    if (!file) return
 
-      // Create preview URL
-      const reader = new FileReader()
-      reader.onload = () => {
-        setLogoPreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
+
+    setLogo(file)
+    setError(null)
+    const reader = new FileReader()
+    reader.onload = () => setLogoPreview(reader.result as string)
+    reader.readAsDataURL(file)
+  }
+
+  const handleBackgroundChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setBackgroundImage(file)
+    setError(null)
+    const reader = new FileReader()
+    reader.onload = () => setBackgroundPreview(reader.result as string)
+    reader.readAsDataURL(file)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    const formData = new FormData();
-    formData.append('main_title', title);
-    formData.append('sub_title_after_main_title', subtitle);
-    formData.append('second_sub_title_content', description);
-    if (logo) {
-      formData.append('img', logo); // File object append করা হচ্ছে
-    }
-    formData.append('name', buttonText);
+    e.preventDefault()
+    setIsSubmitting(true)
+    setError(null)
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/home`, {
+      const formDataToSend = new FormData()
+      formDataToSend.append('title', formData.title)
+      formDataToSend.append('subtitle', formData.subtitle)
+      formDataToSend.append('description', formData.description)
+      formDataToSend.append('button_text', formData.buttonText)
+      formDataToSend.append('button_link', formData.buttonLink)
+
+      if (logo) {
+        formDataToSend.append('logo', logo)
+      }
+      if (backgroundImage) {
+        formDataToSend.append('back_img', backgroundImage)
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/banner`, {
         method: "POST",
         headers: {
-          // "Authorization": `Bearer ${}`,
-          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
         },
-        body: formData,
-      });
+        body: formDataToSend,
+      })
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Success:', result);
-      } else {
-        const errorResult = await response.json();
-        console.error('Error submitting data:', errorResult);
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to save banner')
+      }
+
+      toast.success(result.message || "Banner saved successfully!")
+
+      // Update previews with new URLs if they were uploaded
+      if (result.data?.logo) {
+        setLogoPreview(result.data.logo)
+        setLogo(null)
+      }
+      if (result.data?.back_img) {
+        setBackgroundPreview(result.data.back_img)
+        setBackgroundImage(null)
       }
     } catch (error) {
-      console.error('Fetch error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+      setError(errorMessage)
+      toast.error(errorMessage)
+      console.error('Error:', error)
     } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const toggleButtonEdit = () => {
-    setIsEditingButton(!isEditingButton)
-    if (!isEditingButton && buttonEditRef.current) {
-      // When enabling edit mode, set the current text
-      buttonEditRef.current.innerText = buttonText;
+      setIsSubmitting(false)
     }
   }
 
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      setIsLoading(true)
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/banner`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (response.ok) {
+          const { data } = await response.json()
+          if (data) {
+            setFormData({
+              title: data.title || "",
+              subtitle: data.subtitle || "",
+              description: data.description || "",
+              buttonText: data.button_text || "",
+              buttonLink: data.button_link || "",
+            })
+
+            if (data.logo) setLogoPreview(data.logo)
+            if (data.back_img) setBackgroundPreview(data.back_img)
+          }
+        } else {
+          throw new Error('Failed to fetch banner data')
+        }
+      } catch (error) {
+        console.error('Error fetching initial data:', error)
+        toast.error('Failed to load banner data')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchInitialData() // <-- 👈 this line was missing
+  }, [token])
+
+
+
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    )
+  }
+
   return (
-    <Card className="w-full h-screen mx-auto shadow-md">
+    <Card className="py-10 shadow-md">
       <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
         <CardTitle className="text-xl sm:text-2xl text-center">Edit Banner</CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
-          <div className="space-y-1 sm:space-y-2">
-            <Label htmlFor="title" className="text-sm sm:text-base">
-              Main Title
-            </Label>
+        <CardContent className="space-y-6 px-4 sm:px-6">
+          {error && (
+            <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <Label htmlFor="title">Main Title</Label>
             <Input
               id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={formData.title}
+              onChange={(e) => handleInputChange("title", e.target.value)}
               placeholder="Enter title"
               required
-              className="text-sm sm:text-base"
             />
           </div>
 
-          <div className="space-y-1 sm:space-y-2">
-            <Label htmlFor="subtitle" className="text-sm sm:text-base">
-              Sub Title
-            </Label>
+          <div>
+            <Label htmlFor="subtitle">Sub Title</Label>
             <Input
               id="subtitle"
-              value={subtitle}
-              onChange={(e) => setSubtitle(e.target.value)}
+              value={formData.subtitle}
+              onChange={(e) => handleInputChange("subtitle", e.target.value)}
               placeholder="Enter subtitle"
-              className="text-sm sm:text-base"
             />
           </div>
 
-          <div className="space-y-1 sm:space-y-2">
-            <Label htmlFor="description" className="text-sm sm:text-base">
-              Second Sub Title
-            </Label>
-            {/* Only render Quill when it's loaded on the client side */}
-            {quillLoaded && (
-              <div className="quill-wrapper">
-                <ReactQuill
-                  value={description}
-                  onChange={setDescription}
-                  theme="snow"
-                  modules={{
-                    toolbar: [
-                      [{ header: [1, 2, 3, false] }],
-                      ["bold", "italic", "underline", "strike"],
-                      [{ list: "ordered" }, { list: "bullet" }],
-                      ["link", "image"],
-                      ["clean"],
-                    ],
-                  }}
-                  className="min-h-[150px]"
-                />
-              </div>
-            )}
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <QuillEditor
+              id="description"
+              value={formData.description}
+              onChange={handleEditorChange}
+            />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="logo" className="text-sm sm:text-base">
-              Logo
-            </Label>
-            <div className="flex flex-col items-center gap-3 sm:gap-4 sm:flex-row">
-              <div className="flex h-24 w-24 sm:h-32 sm:w-32 items-center justify-center rounded-md border border-dashed">
-                {logoPreview ? (
-                  <Image
-                    src={logoPreview || "/placeholder.svg"}
-                    alt="Logo preview"
-                    width={128}
-                    height={128}
-                    className="h-full w-full object-contain p-2"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="logo">Logo</Label>
+              <div className="flex flex-col items-center gap-4">
+                <div className="h-32 w-32 flex items-center justify-center border border-dashed rounded-md bg-muted">
+                  {logoPreview ? (
+                    <Image
+                      src={logoPreview}
+                      alt="Logo preview"
+                      width={128}
+                      height={128}
+                      className="h-full w-full object-contain p-2"
+                      unoptimized={logoPreview.startsWith('blob:')}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/placeholder.svg'
+                      }}
+                    />
+                  ) : (
+                    <ImagePlus className="h-10 w-10 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="w-full">
+                  <Input
+                    id="logo"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                    className="w-full"
                   />
-                ) : (
-                  <ImagePlus className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground" />
-                )}
+                </div>
               </div>
-              <div className="flex-1 w-full">
-                <Input
-                  id="logo"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoChange}
-                  className="cursor-pointer w-full"
-                />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="background">Background Image</Label>
+              <div className="flex flex-col items-center gap-4">
+                <div className="h-32 w-full max-w-xs flex items-center justify-center border border-dashed rounded-md bg-muted">
+                  {backgroundPreview ? (
+                    <Image
+                      src={backgroundPreview}
+                      alt="Background preview"
+                      width={300}
+                      height={150}
+                      className="h-full w-full object-cover p-2"
+                      unoptimized={backgroundPreview.startsWith('blob:')}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/placeholder.svg'
+                      }}
+                    />
+                  ) : (
+                    <ImagePlus className="h-10 w-10 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="w-full">
+                  <Input
+                    id="background"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBackgroundChange}
+                    className="w-full"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Button Text Editor - Direct Editing */}
-          <div className="space-y-1 sm:space-y-2">
-            <div className="flex justify-between items-center">
-              <Label htmlFor="buttonText" className="text-sm sm:text-base">
-                Button Text
-              </Label>
-              <Button type="button" variant="outline" size="sm" onClick={toggleButtonEdit} className="h-8 px-2 text-xs">
-                {isEditingButton ? (
-                  <>
-                    <Check className="h-3.5 w-3.5 mr-1" />
-                    Done
-                  </>
-                ) : (
-                  <>
-                    <Edit className="h-3.5 w-3.5 mr-1" />
-                    Edit
-                  </>
-                )}
-              </Button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="buttonText">Button Text</Label>
+              <Input
+                id="buttonText"
+                value={formData.buttonText}
+                onChange={(e) => handleInputChange("buttonText", e.target.value)}
+                placeholder="Enter button text"
+              />
             </div>
-            <div className={`border rounded-md p-3 text-sm sm:text-base ${isEditingButton ? 'bg-muted/30 ring-2 ring-ring' : ''}`}>
-              {isEditingButton ? (
-                <span
-                  ref={buttonEditRef}
-                  contentEditable
-                  onBlur={handleButtonTextEdit}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleButtonTextEdit();
-                      toggleButtonEdit();
-                    }
-                  }}
-                  className="focus:outline-none block w-full"
-                  suppressContentEditableWarning={true}
-                >
-                  {buttonText}
-                </span>
-              ) : (
-                buttonText
-              )}
+
+            <div>
+              <Label htmlFor="buttonLink">Button Link</Label>
+              <Input
+                id="buttonLink"
+                value={formData.buttonLink}
+                onChange={(e) => handleInputChange("buttonLink", e.target.value)}
+                placeholder="Enter button link"
+                type="text"
+              />
             </div>
           </div>
         </CardContent>
 
-        <CardFooter className="px-4 sm:px-6 pb-4 sm:pb-6">
-          <Button type="submit" className="w-[200px] text-sm sm:text-base py-2 sm:py-2.5" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-                Saving changes...
-              </>
-            ) : (
-              buttonText
-            )}
+        <CardFooter className="px-4 sm:px-6 pb-6 flex justify-end gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isSubmitting}
+          >
+            Reset
+          </Button>
+          <Button
+            type="submit"
+            className="w-[200px]"
+            disabled={isSubmitting}
+          >
+
+            {isSubmitting ? "Saving..." : "Save"}
+
           </Button>
         </CardFooter>
       </form>

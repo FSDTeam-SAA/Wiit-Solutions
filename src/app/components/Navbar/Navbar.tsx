@@ -5,102 +5,84 @@ import Link from "next/link"
 import Image from "next/image"
 import { Menu, X } from "lucide-react"
 import { usePathname } from "next/navigation"
-import logo from "@/../../public/image/logo.png"
+import { MenuSection } from "@/types/home"
 
-export default function Navbar() {
+export default function Navbar({ navbarData }: { navbarData: MenuSection }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const pathname = usePathname()
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
 
-  // Navigation links with their paths
   const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "About Us", path: "/about" },
-    { name: "Nationwide Services", path: "/services" },
-    { name: "Contact Us", path: "/contact" },
+    { name: navbarData?.name1, href: navbarData?.link1 },
+    { name: navbarData?.name2, href: navbarData?.link2 },
+    { name: navbarData?.name3, href: navbarData?.link3 },
+    { name: navbarData?.name4, href: navbarData?.link4 },
   ]
 
+  const renderLink = (name: string, href: string) => {
+    const isActive = pathname === href
+    return (
+      <Link
+        key={href}
+        href={href}
+        className="relative block text-xl px-3 py-2 font-medium text-white"
+      >
+        {name}
+        {isActive && (
+          <span className="absolute bottom-0 left-0 w-full h-0.5 bg-yellow-400"></span>
+        )}
+      </Link>
+    )
+  }
+
   return (
-    <nav className="bg-black text-white w-full sticky top-0 left-0 z-50">
-      <div className="container py-10">
+    <nav className="bg-black text-white w-full fixed top-0 left-0 z-50">
+      <div className="container py-6 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          {/* Mobile menu button */}
-          <div className="flex items-center sm:hidden">
-            <button type="button" className="text-white hover:text-gray-300 focus:outline-none" onClick={toggleMenu}>
-              <span className="sr-only">Open main menu</span>
-              {isMenuOpen ? (
-                <X className="block h-[30px] w-[30px]" aria-hidden="true" />
-              ) : (
-                <Menu className="block h-[30px] w-[30px]" aria-hidden="true" />
-              )}
+          {/* Logo */}
+
+
+          {/* Desktop Nav */}
+          <div className="hidden sm:flex space-x-8">
+            {navLinks.map(link => (
+              <Link key={link.href} href={link.href}>
+                <span className="cursor-pointer transition-colors duration-200">
+                  {link.name}
+                </span>
+              </Link>
+            ))}
+          </div>
+          <div className="flex-shrink-0">
+            <Image
+              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Menus/${navbarData?.logo}`}
+              alt="WIIT Logo"
+              width={100}
+              height={100}
+              className="h-[100px] w-[100px]"
+              aria-label="Website Logo"
+            />
+          </div>
+
+          {/* Mobile menu toggle */}
+          <div className="sm:hidden">
+            <button
+              type="button"
+              onClick={toggleMenu}
+              className="text-white focus:outline-none"
+            >
+              {isMenuOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
             </button>
           </div>
-
-          {/* Desktop menu button (hidden on larger screens) */}
-          <div className="hidden sm:block">
-            <div className="flex items-center gap-10">
-              <button type="button" className="text-white hover:text-gray-300 focus:outline-none">
-                <Menu className="block h-6 w-6 md:hidden" aria-hidden="true" />
-              </button>
-
-              <div className="hidden sm:block flex-1">
-                <div className="flex justify-center space-x-8">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.path}
-                      href={link.path}
-                      className={`text-white hover:text-gray-300 text-xl px-3 py-2 font-medium relative group`}
-                    >
-                      {link.name}
-                      <span
-                        className={`absolute bottom-0 left-0 w-full h-0.5 bg-yellow-400 transform origin-left transition-all duration-300 ease-in-out ${pathname === link.path ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                          }`}
-                      ></span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Logo on the right */}
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <Image
-                src={logo || "/placeholder.svg"}
-                alt="WIIT Logo"
-                width={100}
-                height={100}
-                className="h-[100px] w-[100px]"
-              />
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Mobile menu, show/hide based on menu state */}
-      <div className={`sm:hidden ${isMenuOpen ? "block" : "hidden"}`}>
-        <div className="px-2 pt-2 pb-3 space-y-1">
-          {navLinks.map((link) => (
-            <Link
-              key={link.path}
-              href={link.path}
-              className={`block px-3 py-2 rounded-md text-base font-medium relative ${pathname === link.path ? "text-white" : "text-white hover:bg-gray-800"
-                }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {link.name}
-              <span
-                className={`absolute bottom-0 left-0 w-full h-0.5 bg-yellow-400 transform origin-left transition-all duration-300 ease-in-out ${pathname === link.path ? "scale-x-100" : "scale-x-0"
-                  }`}
-              ></span>
-            </Link>
-          ))}
+      {/* Mobile Nav */}
+      {isMenuOpen && (
+        <div className="sm:hidden px-4 pb-4 space-y-2">
+          {navLinks.map(link => renderLink(link.name, link.href))}
         </div>
-      </div>
+      )}
     </nav>
   )
 }
