@@ -59,16 +59,14 @@ function Main() {
             {homeData.about && homeData.about[0] && (
                 <Navbar navbarData={homeData.menu[0]} />
             )}
+            {homeData.about && homeData?.banner && (
+                <Banner bannerData={homeData?.banner} />
+            )}
             <div id={aboutId}>
-                {homeData.about && homeData?.banner && (
-                    <Banner bannerData={homeData?.banner} />
+                {homeData.about && homeData.about[0] && (
+                    <AboutUs aboutData={homeData.about[0]} />
                 )}
             </div>
-
-            {homeData.about && homeData.about[0] && (
-                <AboutUs aboutData={homeData.about[0]} />
-            )}
-
             {homeData.possible && homeData.possible[0] && (
                 <MissionVision missionVisionData={homeData.possible[0]} />
             )}
