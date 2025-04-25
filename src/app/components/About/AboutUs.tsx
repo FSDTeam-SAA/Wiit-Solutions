@@ -6,7 +6,7 @@ import Link from "next/link";
 
 const AboutUs = ({ aboutData }: { aboutData: AboutSection }) => {
   return (
-    <section className=" py-10 px-4 md:px-8 bg-black">
+    <section className=" py-10 px-4 md:px-8 bg-black  md:mt-[1150px] lg:mt-0">
       <div className="container">
         <div className="flex flex-col-reverse lg:flex-row justify-between gap-10">
           {/* Left Content */}
