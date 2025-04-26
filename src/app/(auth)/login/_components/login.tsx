@@ -92,7 +92,7 @@ export function LoginForm() {
                     placeholder="Enter your email address"
                     type="email"
                     {...field}
-                    className="focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-secondary-100 focus-visible:outline-none"
+                    className="focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-secondary-100 focus-visible:outline-none bg-white/80"
                   />
                 </FormControl>
                 <FormMessage />
@@ -112,7 +112,7 @@ export function LoginForm() {
                       placeholder="Enter your password"
                       type={showPassword ? "text" : "password"}
                       {...field}
-                      className="focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-secondary-100 focus-visible:outline-none"
+                      className="focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-secondary-100 focus-visible:outline-none bg-white/80"
                     />
                     <button className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 hover:text-gray-700" type="button" onClick={() => setShowPassword(!showPassword)}>
                       {showPassword ? <FaRegEye /> : <FaRegEyeSlash />}
