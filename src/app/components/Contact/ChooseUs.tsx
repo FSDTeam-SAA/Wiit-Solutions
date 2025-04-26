@@ -11,7 +11,7 @@ const ChooseUs = ({ chooseUsData }: { chooseUsData: WhyChooseUsSection }) => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-1">
             {chooseUsData?.main_title}
           </h2>
-          <div className="w-32 sm:w-48 md:w-64 h-[2px] absolute left-0 sm:left-[98px] mt-1 bg-yellow-500"></div>
+          <div className="w-32 sm:w-48 md:w-[150px] h-[2px] absolute left-0 sm:left-[98px] mt-1 bg-yellow-500"></div>
         </div>
 
         {/* Main content - Responsive grid */}
