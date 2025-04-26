@@ -13,26 +13,26 @@ export default function HearForm({ contactData }: { contactData: ContactSection 
       <div
         className="relative mb-16 md:mb-20 "
       >
-        <div className="relative w-full h-[150px] md:h-[350px] lg:h-[500px]">
+        <div className="relative w-full h-[300px] md:h-[480px] lg:h-[1000px] ">
           <Image
             src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Contacts/${contactData?.breadcrumb}`}
             alt="Contact page banner"
             fill
-            className="object-cover w-full h-full"
+            className=" object-cover w-full h-full"
             quality={99}
             priority
             placeholder="blur"
             blurDataURL="/path/to/low-res-placeholder.jpg"
           />
-        </div>
-        {/* Bottom-left heading */}
-        <div className="absolute bottom-0 md:bottom-4 left-2 md:left-[6%] text-left px-4">
+        <div className="absolute bottom-0 md:bottom-0 left-[10%]  ">
           <h1 className="text-base sm:text-3xl md:text-4xl font-bold text-white">
             {contactData?.main_title}
           </h1>
           <div className="w-[180px] h-[1.5px] bg-yellow-400 mt-2"></div>
         </div>
       </div>
+        </div>
+        {/* Bottom-left heading */}
 
 
 
