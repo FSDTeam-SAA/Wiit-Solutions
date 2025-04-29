@@ -8,7 +8,7 @@ import ContactForm from "../contact-form/contactForm";
 export default function HearForm({ contactData }: { contactData: ContactSection }) {
 
   return (
-    <section className="text-white bg-black">
+    <section className="text-white bg-black !pt-[120px]">
       {/* Mobile Image - Responsive */}
       <div
         className="relative mb-16 md:mb-20 "

@@ -55,14 +55,15 @@ function Main() {
 
 
     return (
-        <div>
+        <div >
             {homeData.about && homeData.about[0] && (
                 <Navbar navbarData={homeData.menu[0]} />
             )}
+           
             {homeData.about && homeData?.banner && (
                 <Banner bannerData={homeData?.banner} />
             )}
-            <div id={aboutId}>
+            <div id={aboutId} className=''>
                 {homeData.about && homeData.about[0] && (
                     <AboutUs aboutData={homeData.about[0]} />
                 )}
@@ -71,7 +72,7 @@ function Main() {
                 <MissionVision missionVisionData={homeData.possible[0]} />
             )}
 
-            <div id={serviceId}>
+            <div id={serviceId} className=''>
                 {homeData.service && homeData.service[0] && (
                     <Ourcorevalues coreValuesData={homeData.service[0]} />
                 )}
