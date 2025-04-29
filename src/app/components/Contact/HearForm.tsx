@@ -13,7 +13,7 @@ export default function HearForm({ contactData }: { contactData: ContactSection 
       <div
         className="relative mb-16 md:mb-20 "
       >
-        <div className="relative w-full h-[300px] md:h-[480px] lg:h-[1000px] ">
+        <div className="relative w-full h-[300px] md:h-[480px] lg:h-[500px] ">
           <Image
             src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Contacts/${contactData?.breadcrumb}`}
             alt="Contact page banner"
