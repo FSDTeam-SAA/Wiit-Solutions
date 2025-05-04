@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "../globals.css";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 
@@ -17,6 +19,10 @@ export default function RootLayout({
 }>) {
     return (
         <>
+            <ToastContainer position="top-right" autoClose={3000} />
+
+
+
             {children}
         </>
 

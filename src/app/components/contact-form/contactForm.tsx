@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
+
+interface FormData {
+    firstName: string;
+    lastName: string;
+    companyName: string;
+    email: string;
+    phone: string;
+    message: string;
+}
 
 function ContactForm() {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<FormData>({
         firstName: "",
         lastName: "",
         companyName: "",
@@ -9,6 +19,7 @@ function ContactForm() {
         phone: "",
         message: "",
     });
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -19,7 +30,8 @@ function ContactForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-    
+        setLoading(true);
+
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/contactMessage`, {
                 method: "POST",
@@ -35,18 +47,33 @@ function ContactForm() {
                     comments: formData.message,
                 }),
             });
-    
+
             if (!res.ok) {
                 const errorData = await res.json();
                 console.error("Submission failed:", errorData);
-                alert("There was an issue submitting the form. Please try again.");
+                toast.error("There was an issue submitting the form. Please try again.", {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                });
                 return;
             }
-    
+
             const result = await res.json();
             console.log("Form successfully submitted:", result);
-            alert("Thank you for contacting us!");
-    
+
+            toast.success("Thank you for reaching out! We appreciate your message and will get back to you shortly.", {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
+
             // Reset form
             setFormData({
                 firstName: "",
@@ -58,10 +85,18 @@ function ContactForm() {
             });
         } catch (error) {
             console.error("Submission error:", error);
-            alert("An unexpected error occurred. Please try again.");
+            toast.error("An unexpected error occurred. Please try again.", {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
+        } finally {
+            setLoading(false);
         }
     };
-    
 
     return (
         <form
@@ -136,9 +171,11 @@ function ContactForm() {
             <div className="md:col-span-2 lg:col-span-1">
                 <button
                     type="submit"
-                    className="w-full p-3 bg-blue-400 hover:bg-blue-500 text-white font-medium transition-colors duration-200 rounded-sm"
+                    disabled={loading}
+                    className={`w-full p-3 ${loading ? "bg-blue-300 cursor-not-allowed" : "bg-blue-400 hover:bg-blue-500"
+                        } text-white font-medium transition-colors duration-200 rounded-sm`}
                 >
-                    Submit
+                    {loading ? "Sending..." : "Submit"}
                 </button>
             </div>
         </form>
