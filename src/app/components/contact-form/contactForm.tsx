@@ -66,7 +66,7 @@ function ContactForm() {
             console.log("Form successfully submitted:", result);
 
             toast.success("Thank you for reaching out! We appreciate your message and will get back to you shortly.", {
-                position: "top-center",
+                position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: false,
                 closeOnClick: true,
