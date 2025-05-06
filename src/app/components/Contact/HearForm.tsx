@@ -11,7 +11,7 @@ export default function HearForm({ contactData }: { contactData: ContactSection 
     <section className="text-white bg-black">
       {/* Mobile Image - Responsive */}
       <div
-        className="relative h-[300px] sm:h-[400px] md:h-[800px] lg:h-[900px] mb-16 md:mb-20"
+        className="relative h-[300px] sm:h-[400px] md:h-[800px] lg:h-[600px] mb-16 md:mb-20"
         style={{
           backgroundImage: `url(${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Contacts/${contactData?.breadcrumb})`,
           backgroundSize: 'cover',
@@ -21,7 +21,7 @@ export default function HearForm({ contactData }: { contactData: ContactSection 
       >
         {/* Bottom-left heading */}
         <div className="left-[14%] absolute bottom-4 text-left px-4">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+          <h1 className="text-xl md:text-4xl font-bold text-white">
             {contactData?.main_title}
           </h1>
           <div className="w-[180px] h-[1.5px] bg-yellow-400 mt-2"></div>

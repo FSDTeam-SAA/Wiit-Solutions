@@ -50,6 +50,10 @@ const menuItems = [
         title: "Footer",
         href: "/dashboard/hear-you",
     },
+    {
+        title: "Settings",
+        href: "/dashboard/settings",
+    },
 ]
 
 export function DashboardSidebar() {
