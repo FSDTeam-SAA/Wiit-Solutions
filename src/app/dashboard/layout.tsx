@@ -21,7 +21,7 @@ export default function RootLayout({
     return (
         <div className={inter.className}>
             <SidebarProvider>
-                <div className="flex min-h-screen w-full">
+                <div className="flex min-h-screen w-full bg-white">
                     <DashboardSidebar />
                     <main className="flex-1">{children}</main>
                 </div>

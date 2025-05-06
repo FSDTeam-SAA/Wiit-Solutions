@@ -6,7 +6,7 @@ import Link from "next/link";
 
 const AboutUs = ({ aboutData }: { aboutData: AboutSection }) => {
   return (
-    <section className=" py-10 px-4 md:px-8 bg-black">
+    <section className=" py-10 px-4 md:px-8 bg-black  md:mt-[1150px] lg:mt-0 pt-[150px]">
       <div className="container">
         <div className="flex flex-col-reverse lg:flex-row justify-between gap-10">
           {/* Left Content */}
@@ -49,7 +49,7 @@ const AboutUs = ({ aboutData }: { aboutData: AboutSection }) => {
             {/* Info Sections */}
             <div className="flex flex-col md:flex-row justify-between items-start gap-10 mt-10 ">
               {/* Who We Are */}
-              <div className="w-full md:w-[48%]">
+              <div className="w-full md:w-[48%] space-y-3">
                 <h3 className="text-sm tracking-[4px] font-semibold uppercase text-white bg-[#A4A4A4]/20 inline-block px-2 py-1">
                   {aboutData?.first_paragraph_subtitle}
                 </h3>

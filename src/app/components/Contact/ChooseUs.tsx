@@ -11,13 +11,13 @@ const ChooseUs = ({ chooseUsData }: { chooseUsData: WhyChooseUsSection }) => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-1">
             {chooseUsData?.main_title}
           </h2>
-          <div className="w-32 sm:w-48 md:w-64 h-[2px] absolute left-0 sm:left-[98px] mt-1 bg-yellow-500"></div>
+          <div className="w-32 sm:w-48 md:w-[150px] h-[2px] absolute left-0 sm:left-[98px] mt-1 bg-yellow-500"></div>
         </div>
 
         {/* Main content - Responsive grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">
+        <div className="flex flex-col lg:flex-row  ">
           {/* Left Column - Think Outside the Box */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 mt-8 sm:mt-16 md:mt-28">
+          <div className="w-full md:w-[100%] lg:w-[45%] flex flex-col sm:flex-row gap-4 sm:gap-8 mt-8 sm:mt-16 md:mt-28">
             <div className="flex-shrink-0 w-14 h-14 bg-transparent flex items-center justify-center">
               <Image
                 src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/WhyChooseUs/${chooseUsData?.left_side_icon}`}
@@ -72,7 +72,7 @@ const ChooseUs = ({ chooseUsData }: { chooseUsData: WhyChooseUsSection }) => {
           </div>
 
           {/* Right Column - RFT Approach */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 mt-10 lg:mt-0">
+          <div className="w-full md:w-[100%] lg:w-[45%] flex flex-col sm:flex-row gap-4 sm:gap-8 mt-10 lg:mt-0">
             <div className="flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center">
               <Image
                 src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/WhyChooseUs/${chooseUsData?.middle_side_icon}`}
@@ -82,8 +82,8 @@ const ChooseUs = ({ chooseUsData }: { chooseUsData: WhyChooseUsSection }) => {
               />
             </div>
             <div className="flex-1">
-              <div className="flex flex-col md:flex-row gap-4 md:gap-5 mb-6">
-                <h3 className="text-2xl sm:text-3xl font-bold leading-snug">
+              <div className="flex flex-col md:flex-row mb-6 space-y-3">
+                <h3 className="text-2xl sm:text-3xl font-bold leading-snug w-[300px] md:w-[180px] lg:w-[300px]">
                   {chooseUsData?.middle_side_main_title &&
                     chooseUsData.middle_side_main_title.split(" ").map((word, index) => {
                       const highlightWords = ["Time", "Approach"];
@@ -126,18 +126,18 @@ const ChooseUs = ({ chooseUsData }: { chooseUsData: WhyChooseUsSection }) => {
       </div>
 
       {/* Question Mark Image - Responsive positioning */}
-      <div className="hidden lg:block absolute bottom-0 mb-[-45px] right-0 w-[50%] xl:w-[700px] h-[50%] xl:h-[600px] z-0">
+      <div className="hidden lg:block absolute bottom-0 lg:bottom-[-200px] mb-[-45px] right-0 lg:right-[-300px]  w-[50%] xl:w-[700px] h-[50%] xl:h-[600px] ">
         <div className="relative w-full h-full">
           <Image
             src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/WhyChooseUs/${chooseUsData?.img}`}
             alt="image"
             width={300}
             height={300}
-            className="w-full h-full object-contain"
+            className="w-full h-full  lg: object-contain lg:w-[400px] lg:h-[400px] "
           />
         </div>
       </div>
-      <div className="hidden lg:block absolute right-[2%] top-[15%] w-[200px] md:w-[400px] z-10 ">
+      <div className="hidden lg:block absolute right-[-3%]  top-[40%] xl:top-[35%] w-[200px] md:w-[400px]  ">
         <Image
           src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/WhyChooseUs/${chooseUsData?.icon}`}
           alt="image"

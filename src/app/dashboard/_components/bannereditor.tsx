@@ -154,7 +154,7 @@ export default function BannerEditor() {
     }
 
     return (
-        <div className=" px-4 py-8">
+        <div className="">
             <Card className="">
                 <CardHeader>
                     <CardTitle className="text-2xl text-center">Navigation Menu Editor</CardTitle>
