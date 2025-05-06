@@ -11,19 +11,6 @@ export default function HearForm({ contactData }: { contactData: ContactSection 
     <section className="text-white bg-black !pt-[120px]">
       {/* Mobile Image - Responsive */}
       <div
-<<<<<<< HEAD
-        className="relative h-[300px] sm:h-[400px] md:h-[800px] lg:h-[600px] mb-16 md:mb-20"
-        style={{
-          backgroundImage: `url(${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/Contacts/${contactData?.breadcrumb})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      >
-        {/* Bottom-left heading */}
-        <div className="left-[14%] absolute bottom-4 text-left px-4">
-          <h1 className="text-xl md:text-4xl font-bold text-white">
-=======
         className="relative mb-16 md:mb-20 "
       >
         <div className="relative w-full h-[300px] md:h-[480px] lg:h-[500px] ">
@@ -39,7 +26,6 @@ export default function HearForm({ contactData }: { contactData: ContactSection 
           />
         <div className="absolute bottom-0 md:bottom-0 left-[10%]  ">
           <h1 className="text-base sm:text-3xl md:text-4xl font-bold text-white">
->>>>>>> 27693ef3e1aa5cf0e6dbe51e5b24b9c972bc16e3
             {contactData?.main_title}
           </h1>
           <div className="w-[180px] h-[1.5px] bg-yellow-400 mt-2"></div>
