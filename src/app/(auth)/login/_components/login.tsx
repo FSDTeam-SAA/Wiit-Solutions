@@ -75,7 +75,7 @@ export function LoginForm() {
   return (
     <div className="w-full max-w-md">
       <div className="space-y-2 mb-6">
-        <h1 className="text-3xl font-bold">Login to Account</h1>
+        <h1 className="text-3xl font-bold text-white">Login to Account</h1>
         <p className="text-muted-foreground">Please enter your email and password to continue</p>
       </div>
 
@@ -86,7 +86,7 @@ export function LoginForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email Address</FormLabel>
+                <FormLabel className="text-white">Email Address</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Enter your email address"
@@ -105,7 +105,7 @@ export function LoginForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel className="text-white">Password</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
